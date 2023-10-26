@@ -1,0 +1,29 @@
+Resources:
+  EventBridgeReplicationRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - 'sts:AssumeRole'
+            Effect: Allow
+            Principal:
+              Service:
+                - events.amazonaws.com
+  EventBridgeReplicationRolePolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: ${self:custom.appPrefix}-${opt:stage}-${self:provider.region}-eventbridge-replication
+      PolicyDocument:
+        Statement:
+          - Action:
+              - 'events:PutEvents'
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:aws:events:us-east-1:"
+                  - !Ref AWS::AccountId
+                  - ":event-bus/vn-lab-ppm-analytics-${opt:stage}-main"
+      Roles:
+        - !Ref EventBridgeReplicationRole

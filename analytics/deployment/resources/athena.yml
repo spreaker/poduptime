@@ -1,0 +1,67 @@
+Resources:
+  MainGlueDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseInput:
+        Name: ${self:custom.appPrefix}-${opt:stage}-main
+  RawDataTable:
+    Type: AWS::Glue::Table
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseName: !Ref MainGlueDatabase
+      TableInput:
+        Name: raw
+        TableType: EXTERNAL_TABLE
+        Parameters: {
+          "EXTERNAL": "TRUE",
+          "projection.enabled": "true",
+          "projection.year.range": "2020,2030",
+          "projection.year.type": "integer",
+          "projection.month.digits": "2",
+          "projection.month.range": "1,12",
+          "projection.month.type": "integer",
+          "projection.day.digits": "2",
+          "projection.day.range": "1,31",
+          "projection.day.type": "integer"
+        }
+        PartitionKeys:
+          - Name: year
+            Type: int
+          - Name: month
+            Type: int
+          - Name: day
+            Type: int
+        StorageDescriptor:
+          Location:
+            Fn::Sub: s3://${DataBucket}/raw
+          InputFormat: org.apache.hadoop.mapred.TextInputFormat
+          OutputFormat: org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat
+          SerdeInfo:
+            SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+            Parameters: {
+              "ignore.malformed.json": "true"
+            }
+          Columns:
+            - Name: id
+              Type: string
+            - Name: timestamp
+              Type: string
+            - Name: region
+              Type: string
+            - Name: endpoint
+              Type: string
+            - Name: type
+              Type: string
+            - Name: url
+              Type: string
+            - Name: status
+              Type: int
+            - Name: duration
+              Type: double
+            - Name: available
+              Type: double
+            - Name: headers
+              Type: string
+            - Name: traversal
+              Type: string

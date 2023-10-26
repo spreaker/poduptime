@@ -1,0 +1,15 @@
+Resources:
+  DataBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: ${self:custom.appPrefix}-${opt:stage}-${self:provider.region}-data
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteRawDataAfter60Days
+            Status: Enabled
+            Prefix: "raw/"
+            ExpirationInDays: 60
+            NoncurrentVersionExpiration:
+              NoncurrentDays: 7

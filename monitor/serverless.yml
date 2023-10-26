@@ -1,0 +1,78 @@
+frameworkVersion: "^3.35.2"
+
+service: ${self:custom.appPrefix}
+
+provider:
+  name: aws
+  region: ${opt:region}
+  stage: ${opt:stage}
+  runtime: nodejs18.x
+  logRetentionInDays: 14
+  architecture: arm64
+  memorySize: 256
+  stackTags:
+    voxnest:billing:app: ${self:custom.appPrefix}
+  environment:
+    STAGE: ${opt:stage}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - "events:PutEvents"
+          Resource:
+            Fn::GetAtt:
+              - MainEventBus
+              - Arn
+        - Effect: Allow
+          Action:
+            - "sqs:SendMessage"
+          Resource:
+            Fn::GetAtt:
+              - CheckEndpointQueue
+              - Arn
+
+custom:
+  appPrefix: vn-lab-ppm-monitor
+  prune:
+    automatic: true
+    number: 5
+
+package:
+  patterns:
+    - "!.*"
+    - "!serverless*.yml"
+    - "!deployment"
+
+plugins:
+  - serverless-prune-plugin
+
+resources:
+  - ${file(deployment/resources/iam.yml)}
+  - ${file(deployment/resources/sqs.yml)}
+  - ${file(deployment/resources/events.yml)}
+
+functions:
+  kickstart:
+    name: ${self:custom.appPrefix}-kickstart
+    handler: functions/kickstart/handler.kickstart
+    environment:
+      CHECK_QUEUE_URL:
+        Fn::GetAtt:
+          - CheckEndpointQueue
+          - QueueUrl
+    events:
+      - schedule: rate(1 minute)
+  checkEndpoint:
+    name: ${self:custom.appPrefix}-checkEndpoint
+    handler: functions/check-endpoint/handler.checkEndpoint
+    timeout: 15
+    environment:
+      EVENT_BUS: !Ref MainEventBus
+    events:
+      - sqs:
+          batchSize: 1
+          arn:
+            Fn::GetAtt:
+              - CheckEndpointQueue
+              - Arn

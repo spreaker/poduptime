@@ -1,0 +1,39 @@
+Conditions:
+  UseCustomDomain:
+    Fn::And:
+      - Fn::Not:
+          - Fn::Equals:
+              - ${self:custom.domain}
+              - ""
+      - Fn::Not:
+          - Fn::Equals:
+              - ${self:custom.zoneId}
+              - ""
+Resources:
+  DomainRecordRoot:
+    Condition: UseCustomDomain
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneId: ${self:custom.zoneId}
+      RecordSets:
+        - Name: ${self:custom.domain}
+          Type: A
+          AliasTarget:
+            HostedZoneId: Z2FDTNDATAQYW2
+            DNSName: !GetAtt
+              - MainCloudfrontDistribution
+              - DomainName
+
+  SSLCertificate:
+    Condition: UseCustomDomain
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: ${self:custom.domain}
+      SubjectAlternativeNames:
+        - www.${self:custom.domain}
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: ${self:custom.domain}
+          HostedZoneId: ${self:custom.zoneId}
+        - DomainName: www.${self:custom.domain}
+          HostedZoneId: ${self:custom.zoneId}

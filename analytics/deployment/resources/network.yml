@@ -1,0 +1,24 @@
+Resources:
+  LambdaSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: ${self:custom.appPrefix}-${opt:stage}-lambda
+      GroupDescription: "Security group for Lambdas"
+      VpcId: ${self:custom.vpcId}
+  DatabaseSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: ${self:custom.appPrefix}-${opt:stage}-database
+      GroupDescription: "Security group for Database"
+      VpcId: ${self:custom.vpcId}
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: !Ref LambdaSecurityGroup
+          Description: Allow PostgreSQL ingress from Lambda
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: ${self:custom.administrativeSecurityGroupId}
+          Description: Allow PostgreSQL ingress from Administrators

@@ -1,0 +1,22 @@
+{
+  "name": "poduptime-monitor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@aws-sdk/client-eventbridge": "^3.421.0",
+    "@aws-sdk/client-sqs": "^3.421.0",
+    "aws-sdk-client-mock": "^3.0.0",
+    "serverless-prune-plugin": "^2.0.2"
+  },
+  "dependencies": {
+    "date-fns": "^2.30.0",
+    "undici": "^5.25.2"
+  }
+}

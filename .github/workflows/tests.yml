@@ -1,0 +1,50 @@
+name: Node.js CI
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+jobs:
+  tests-monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+      - run: npm install
+        working-directory: ./monitor
+      - run: node --test .
+        working-directory: ./monitor
+  tests-analytics:
+    runs-on: ubuntu-latest
+    services:
+      postgresql:
+        image: postgres:15.3-alpine
+        env:
+          POSTGRES_DB: poduptime
+          POSTGRES_USER: lambda
+          POSTGRES_PASSWORD: secret
+          POSTGRES_INITDB_ARGS: "--locale=en_US.UTF-8"
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+      - run: npm install
+        working-directory: ./analytics
+      - run: psql -d postgresql://lambda@localhost/poduptime -f deployment/database/schema.sql
+        working-directory: ./analytics
+        env:
+          PGPASSWORD: secret
+      - run: node --test .
+        working-directory: ./analytics
+        env:
+          PGDATABASE: poduptime
+          PGUSER: lambda
+          PGHOST: localhost
+          PGPORT: 5432
+          PGPASSWORD: secret

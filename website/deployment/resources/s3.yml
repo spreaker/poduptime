@@ -1,0 +1,49 @@
+Resources:
+  WebsiteBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: ${self:custom.appPrefix}-${opt:stage}-${self:provider.region}-website
+      WebsiteConfiguration:
+        IndexDocument: index.html
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      OwnershipControls:
+        Rules:
+        - ObjectOwnership: BucketOwnerPreferred
+
+  WebsiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref WebsiteBucket
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+            Resource:
+              Fn::Join:
+                - /
+                - - Fn::GetAtt:
+                      - WebsiteBucket
+                      - Arn
+                  - "*"
+            Principal:
+              CanonicalUser:
+                Fn::GetAtt:
+                  - CloudfrontOAI
+                  - S3CanonicalUserId
+          - Effect: Allow
+            Action:
+              - s3:ListBucket
+            Resource:
+              Fn::GetAtt:
+                - WebsiteBucket
+                - Arn
+            Principal:
+              CanonicalUser:
+                Fn::GetAtt:
+                  - CloudfrontOAI
+                  - S3CanonicalUserId

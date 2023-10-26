@@ -1,0 +1,47 @@
+Conditions:
+  EnableDatabaseRedundancy:
+    Fn::Equals:
+      - ${opt:stage}
+      - prod
+Resources:
+  MainDatabaseSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupName: ${self:custom.appPrefix}-${opt:stage}-main
+      DBSubnetGroupDescription: "Subnet group for main database"
+      SubnetIds: ${self:custom.databaseSubnetIds}
+  MainDatabaseCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      DatabaseName: poduptime
+      DBClusterIdentifier: ${self:custom.appPrefix}-${opt:stage}-main
+      Engine: aurora-postgresql
+      EngineVersion: 15.3
+      EngineMode: provisioned
+      Port: 5432
+      DBSubnetGroupName: !Ref MainDatabaseSubnetGroup
+      VpcSecurityGroupIds:
+        - !Ref DatabaseSecurityGroup
+      MasterUsername: administrator
+      ManageMasterUserPassword: true
+      ServerlessV2ScalingConfiguration:
+        MinCapacity: 0.5
+        MaxCapacity: 5
+      EnableIAMDatabaseAuthentication: true
+  MainDatabaseInstanceOne:
+    Type: 'AWS::RDS::DBInstance'
+    Properties:
+      Engine: aurora-postgresql
+      DBInstanceClass: db.serverless
+      DBClusterIdentifier: !Ref MainDatabaseCluster
+      DBInstanceIdentifier: ${self:custom.appPrefix}-${opt:stage}-main-instance-1
+      EnablePerformanceInsights: true
+  MainDatabaseInstanceTwo:
+    Condition: EnableDatabaseRedundancy
+    Type: 'AWS::RDS::DBInstance'
+    Properties:
+      Engine: aurora-postgresql
+      DBInstanceClass: db.serverless
+      DBClusterIdentifier: !Ref MainDatabaseCluster
+      DBInstanceIdentifier: ${self:custom.appPrefix}-${opt:stage}-main-instance-2
+      EnablePerformanceInsights: true

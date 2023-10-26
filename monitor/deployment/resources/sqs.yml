@@ -1,0 +1,5 @@
+Resources:
+  CheckEndpointQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ${self:custom.appPrefix}-${opt:stage}-check-endpoint

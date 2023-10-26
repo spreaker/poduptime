@@ -1,0 +1,25 @@
+Resources:
+  MainEventBus:
+    Type: AWS::Events::EventBus
+    Properties:
+      Name: ${self:custom.appPrefix}-${opt:stage}-main
+  SendToAnalyticsEventRule:
+    Type: AWS::Events::Rule
+    Properties:
+      EventBusName: !Ref MainEventBus
+      EventPattern:
+        source:
+          - monitor
+      State: ENABLED
+      Targets:
+        - Id: send-to-analytics-event-bridge
+          Arn:
+            Fn::Join:
+              - ""
+              - - "arn:aws:events:us-east-1:"
+                - !Ref AWS::AccountId
+                - ":event-bus/vn-lab-ppm-analytics-${opt:stage}-main"
+          RoleArn:
+            Fn::GetAtt:
+              - EventBridgeReplicationRole
+              - Arn

@@ -1,0 +1,91 @@
+---
+interface Props {
+	title: string
+	headerLink?: string
+}
+
+const { title, headerLink } = Astro.props
+
+const canonicalURL = Astro.site ? new URL(Astro.url.pathname, Astro.site) : null;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="PodUptime. Uptime monitoring for the podcast industry." />
+		<meta name="keywords" content="Podcast, Uptime, Monitoring, Hosting, Tracking Prefix" />
+		<meta name="viewport" content="width=device-width" />
+
+		<meta property="og:title" content={title} />
+		<meta
+			property="og:description"
+			content="PodUptime. Uptime monitoring for the podcast industry."
+		/>
+		<meta property="og:image" content="/og-image.jpg" />
+
+		<link rel="sitemap" href="/sitemap-index.xml" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		{canonicalURL &&<link rel="canonical" href={canonicalURL} />}
+		<title>{title}</title>
+	</head>
+
+	<body class="min-h-screen w-full bg-gradient-to-br from-zinc-950 via-pink-950 to-blue-950">
+		<main class="m-auto max-w-3xl p-4 text-pink-200">
+			<div class="group/neon relative mt-4">
+				<div
+					class="absolute -inset-1 rounded-lg bg-gradient-to-tr from-pink-500 via-pink-100 to-blue-900 opacity-25 blur transition duration-1000 group-hover/neon:opacity-100 group-hover/neon:duration-200"
+				>
+				</div>
+				<div class="w-full rounded-xl bg-gradient-to-tr from-pink-400 via-red-500 to-blue-900 p-1">
+					<a href={headerLink}>
+						<img
+							class="relative h-[300px] w-full rounded-t-lg object-cover object-top pb-1 sm:h-[420px]"
+							src="/logo.jpg"
+							alt="PodUptime, podcast uptime monitoring for the podcast industry"
+						/>
+					</a>
+					<div
+						class="items-top relative flex justify-start space-x-6 rounded-lg bg-white ring-1 ring-gray-900/5"
+					>
+						<div
+							class="h-full w-full rounded-b-lg bg-gradient-to-br from-zinc-950 via-pink-950 to-blue-950 p-4 sm:p-8"
+						>
+							<slot />
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+		<div class="m-auto flex max-w-3xl p-4 text-xs font-thin text-pink-200">
+			<div class="flex-grow">
+				Copyright 2023 &nbsp;|&nbsp;
+				<a
+					class="font-normal underline"
+					rel="noopener"
+					target="_blank"
+					href="https://www.spreaker.com/">Spreaker</a
+				>
+			</div>
+			<div>
+				<a class="font-normal underline" href="/about/">About</a>
+				 &nbsp;|&nbsp;
+				<a class="font-normal underline" href="/changelog/">Changelog</a>
+				 &nbsp;|&nbsp;
+				<a
+					class="font-normal underline"
+					rel="noopener"
+					target="_blank"
+					href="https://www.spreaker.com/privacy">Privacy</a
+				>
+				 &nbsp;|&nbsp;
+				<a
+					class="font-normal underline"
+					rel="noopener"
+					target="_blank"
+					href="https://www.spreaker.com/terms">Terms</a
+				>
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,170 @@
+---
+import Status from '../components/Status.astro'
+import Layout from '../layouts/Layout.astro'
+---
+
+<Layout title="PodUptime | About" headerLink="/">
+	<h1 class="mb-4 text-4xl font-bold text-pink-100">About PodUptime</h1>
+
+	<p class="mb-4">
+		PodUptime is a distributed uptime monitoring system for the podcast industry, measuring
+		availability of hosting platforms and tracking prefixes.
+	</p>
+
+	<h2
+		class="mb-4 mt-6 border-b-2 border-dotted border-pink-100 pb-2 text-2xl font-bold text-pink-100"
+	>
+		How does it work?
+	</h2>
+
+	<p class="mb-4 [&>code]:underline">
+		The measurement process involves regularly conducting an <code>HTTP HEAD</code> request against
+		a media enclosure <code>URL</code>, which is typically found in podcast <code>RSS</code> feeds.
+		We gather data from various AWS regions, each of which performs an <code>HTTP HEAD</code>
+		 request every minute on every monitored service. These regions include <code>us-west-1</code>,
+		<code>us-east-2</code>, and <code>eu-south-1</code>, carefully chosen to avoid regions where
+		most companies typically run their workloads, ensuring an unbiased measurement.
+	</p>
+
+	<p class="mb-4 [&>code]:underline">
+		The <code>User-Agent</code> being used to perform these requests is:
+		<code>Mozilla/5.0 (compatible; PodUptimeBot/1.0; +https://poduptime.com; rid:XXX)</code>. The <code
+			>rid</code
+		>
+		 property represents a random GUID (eg: <code>0e7f5251-9d03-4371-8186-a82ca9c5235e</code>) which
+		is utilized to persist the request results in our internal database, facilitating debugging
+		purposes. Additionally, it ensures that consecutive checks conducted on the same endpoint are
+		not treated as originating from the same listener, in accordance with the IAB definition, and
+		prevents short-circuiting of a pre-existing cached response.
+	</p>
+
+	<h2
+		class="mb-4 mt-6 border-b-2 border-dotted border-pink-100 pb-2 text-2xl font-bold text-pink-100"
+	>
+		How is availability established?
+	</h2>
+
+	<p class="mb-4">Availability is established differently based on the type of the target:</p>
+
+	<ul class="mb-4 list-outside list-disc pl-4">
+		<li class="pb-3 [&>code]:underline">
+			<strong class="font-bold text-pink-100">Tracking prefixes</strong> are considered&nbsp;&nbsp;
+			<Status type="UP" />&nbsp;&nbsp;if they promptly redirect to the prefixed <code>URL</code>
+			 with one of the following <code>HTTP</code> status codes: <code>301</code>, <code>302</code>,
+
+
+			<code>303</code>, <code>307</code>, or <code>308</code>. The redirection itself is not
+			followed, ensuring that the measured duration represents the actual time it takes for the
+			prefix to initiate the redirect.
+		</li>
+		<li class="[&>code]:underline">
+			<strong class="font-bold text-pink-100">Hosting platforms</strong> are considered&nbsp;&nbsp;
+			<Status type="UP" />&nbsp;&nbsp;if they respond with an <code>HTTP</code>
+			 status code <code>200</code> to a request made to the monitored URL, following any redirects.
+			In this scenario, the measured duration reflects the actual time it takes for the client to
+			reach the destination of the <code>HEAD</code> request.
+		</li>
+	</ul>
+
+	<p class="mb-4">
+		The status shown in the homepage represent the availability over the last 30 minutes and it is
+		reported as follows:
+	</p>
+	<table class="mb-4">
+		<thead>
+			<tr>
+				<th class="px-4 py-2">Status</th>
+				<th class="px-4 py-2">Availability</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td class="border border-dotted px-4 py-2">
+					<Status type="UP" />
+				</td>
+				<td class="border border-dotted px-4 py-2"
+					>The endpoint consistently showed as &nbsp;
+					<Status type="UP" />
+				</td>
+			</tr>
+			<tr>
+				<td class="border border-dotted px-4 py-2">
+					<Status type="PARTIAL" />
+				</td>
+				<td class="border border-dotted px-4 py-2"
+					>The endpoint was detected as &nbsp;
+					<Status type="UP" />&nbsp; in certain regions or moments and as &nbsp;
+					<Status type="DOWN" />&nbsp; in others
+				</td>
+			</tr>
+			<tr>
+				<td class="border border-dotted px-4 py-2">
+					<Status type="DOWN" />
+				</td>
+				<td class="border border-dotted px-4 py-2"
+					>The endpoint consistently showed as &nbsp;
+					<Status type="DOWN" />&nbsp;
+				</td>
+			</tr>
+			<tr>
+				<td class="border border-dotted px-4 py-2">
+					<Status type="UNKNOWN" />
+				</td>
+				<td class="border border-dotted px-4 py-2">No data is available for the endpoint</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<p class="mb-4">
+		Furthermore, to minimize false positives and ensure fairness in our measurements, an endpoint is
+		classified as &nbsp;&nbsp;
+		<Status type="DOWN" />&nbsp;&nbsp; only when two consecutive measurements from the same region
+		confirm its status.
+	</p>
+
+	<h2
+		class="mb-4 mt-6 border-b-2 border-dotted border-pink-100 pb-2 text-2xl font-bold text-pink-100"
+	>
+		Why is a particular hosting platform / prefix missing?
+	</h2>
+
+	<p class="mb-4">
+		It's possible that we may have missed it, or the specific platform might not allow the creation
+		of a free account, and we do not have an existing one to use. Please get in touch with us via
+		email at poduptime@spreaker.com, and we will do our best to incorporate your chosen platform or
+		prefix.
+	</p>
+
+	<h2
+		class="mb-4 mt-6 border-b-2 border-dotted border-pink-100 pb-2 text-2xl font-bold text-pink-100"
+	>
+		I see this is made by an hosting platform, is it biased?
+	</h2>
+
+	<p class="mb-4">
+		Every service we monitor receives equal visibility, and the testing methodology is explained in detail.
+		If you find this information insufficient, you can review the source code of the project on
+		<a class="underline" href="https://github.com/spreaker/poduptime">GitHub</a>. We believe that releasing the code as open source
+		addresses any concerns or doubts about fair measurement. However, if you still have any questions
+		or require further clarification, please feel free to get in touch, and we'll be happy to assist.
+	</p>
+
+	<h2
+		class="mb-4 mt-6 border-b-2 border-dotted border-pink-100 pb-2 text-2xl font-bold text-pink-100"
+	>
+		Do you keep a changelog?
+	</h2>
+
+	<p class="mb-4">
+		Yes, we maintain a <a class="font-normal underline" href="/changelog/">Changelog</a> where you
+		can review all the changes that have been implemented in this monitoring system over time.
+	</p>
+
+	<h2
+		class="mb-4 mt-6 border-b-2 border-dotted border-pink-100 pb-2 text-2xl font-bold text-pink-100"
+	>
+		I have other questions, how can I reach out?
+	</h2>
+
+	<p class="mb-4">Please send us an email at poduptime@spreaker.com</p>
+</Layout>

@@ -1,0 +1,167 @@
+frameworkVersion: "^3.35.2"
+
+service: ${self:custom.appPrefix}
+
+provider:
+  name: aws
+  region: ${opt:region}
+  stage: ${opt:stage}
+  runtime: nodejs18.x
+  architecture: arm64
+  memorySize: 256
+  stackTags:
+    voxnest:billing:app: ${self:custom.appPrefix}
+  environment:
+    STAGE: ${opt:stage}
+    PGUSER: lambda
+    PGDATABASE: poduptime
+    PGHOST:
+      Fn::GetAtt:
+        - MainDatabaseCluster
+        - Endpoint.Address
+    PGPORT:
+      Fn::GetAtt:
+        - MainDatabaseCluster
+        - Endpoint.Port
+  vpc:
+    securityGroupIds:
+      - !Ref LambdaSecurityGroup
+    subnetIds: ${self:custom.lambdaSubnetIds}
+  layers:
+    - ${self:custom.observabilityLayerArn}
+  iam:
+    role:
+      statements:
+        - Effect: Deny
+          Action:
+            - "logs:*"
+          Resource:
+            - "*"
+        - Effect: Allow
+          Action:
+            - "s3:Get*"
+            - "s3:Put*"
+            - "s3:Abort*"
+          Resource:
+            - Fn::Join:
+              - ""
+              - - "arn:aws:s3:::"
+                - Ref: DataBucket
+                - "/*"
+        - Effect: Allow
+          Action:
+            - "s3:Put*"
+            - "s3:Abort*"
+          Resource: "arn:aws:s3:::vn-lab-ppm-website-${opt:stage}-us-east-1-website/api/*"
+        - Effect: Allow
+          Action:
+            - "sqs:SendMessage"
+          Resource:
+            Fn::GetAtt:
+              - AggregateQueue
+              - Arn
+        - Effect: Allow
+          Action:
+            - "sqs:SendMessage"
+          Resource:
+            - "${self:custom.observabilityQueueArn}"
+        - Effect: Allow
+          Action:
+            - "rds-db:connect"
+          Resource:
+            - Fn::Join:
+              - ""
+              - - "arn:aws:rds-db:${opt:region}:"
+                - !Ref AWS::AccountId
+                - ":dbuser:"
+                - Fn::GetAtt:
+                  - MainDatabaseCluster
+                  - DBClusterResourceId
+                - "/lambda"
+
+custom:
+  appPrefix: vn-lab-ppm-analytics
+  websiteBucket: vn-lab-ppm-website-${opt:stage}-us-east-1-website
+  vpcId: ${param:vpcId}
+  lambdaSubnetIds: !Split [",", "${param:lambdaSubnetIds}"]
+  databaseSubnetIds: !Split [",", "${param:databaseSubnetIds}"]
+  administrativeSecurityGroupId: ${param:administrativeSecurityGroupId}
+  observabilityAccountId: ${param:observabilityAccountId}
+  observabilityLayerArn: ${param:observabilityLayerArn}
+  observabilityQueueArn: ${param:observabilityQueueArn}
+  prune:
+    automatic: true
+    number: 5
+
+package:
+  patterns:
+    - "!.*"
+    - "!serverless*.yml"
+    - "!deployment"
+
+plugins:
+  - serverless-prune-plugin
+
+resources:
+  - ${file(deployment/resources/athena.yml)}
+  - ${file(deployment/resources/database.yml)}
+  - ${file(deployment/resources/events.yml)}
+  - ${file(deployment/resources/network.yml)}
+  - ${file(deployment/resources/s3.yml)}
+  - ${file(deployment/resources/sqs.yml)}
+
+functions:
+
+  archiveRaw:
+    name: ${self:custom.appPrefix}-archiveRaw
+    handler: functions/archive-raw/handler.archiveRaw
+    environment:
+      DATA_BUCKET: !Ref DataBucket
+      WEBSITE_BUCKET: ${self:custom.websiteBucket}
+    events:
+      - eventBridge:
+          eventBus: !Ref MainEventBus
+          pattern:
+            source:
+              - monitor
+
+  archiveDatabase:
+    name: ${self:custom.appPrefix}-archiveDatabase
+    handler: functions/archive-database/handler.archiveDatabase
+    events:
+      - eventBridge:
+          eventBus: !Ref MainEventBus
+          pattern:
+            source:
+              - monitor
+
+  aggregateMinutely:
+    name: ${self:custom.appPrefix}-aggregateMinutely
+    handler: functions/aggregate-minutely/handler.aggregateMinutely
+    environment:
+      AGGREGATE_QUEUE_URL:
+        Fn::GetAtt:
+          - AggregateQueue
+          - QueueUrl
+    events:
+      - schedule: rate(1 minute)
+
+  aggregateWorker:
+    name: ${self:custom.appPrefix}-aggregateWorker
+    handler: functions/aggregate-worker/handler.aggregateWorker
+    timeout: 55
+    environment:
+      WEBSITE_BUCKET: ${self:custom.websiteBucket}
+    events:
+      - sqs:
+          batchSize: 1
+          arn:
+            Fn::GetAtt:
+              - AggregateQueue
+              - Arn
+
+  cleanupDatabase:
+    name: ${self:custom.appPrefix}-cleanupDatabase
+    handler: functions/cleanup-database/handler.cleanupDatabase
+    events:
+      - schedule: rate(1 day)

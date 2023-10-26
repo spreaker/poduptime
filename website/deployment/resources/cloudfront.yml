@@ -1,0 +1,121 @@
+Resources:
+  CloudfrontOAI:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: ${self:custom.appPrefix}-${opt:stage}
+
+  MainCloudfrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    DependsOn:
+      - WebsiteBucket
+    Properties:
+      DistributionConfig:
+        Origins:
+          - DomainName:
+              !Select [2, !Split ["/", !GetAtt WebsiteBucket.WebsiteURL]]
+            Id: WebsiteOrigin
+            CustomOriginConfig:
+              HTTPPort: "80"
+              HTTPSPort: "443"
+              OriginProtocolPolicy: http-only
+          - DomainName:
+              Fn::GetAtt:
+                - WebsiteBucket
+                - DomainName
+            Id: ApiOrigin
+            S3OriginConfig:
+              OriginAccessIdentity:
+                Fn::Join:
+                  - /
+                  - - origin-access-identity
+                    - cloudfront
+                    - !Ref CloudfrontOAI
+        Enabled: true
+        HttpVersion: http2and3
+        DefaultCacheBehavior:
+          AllowedMethods: [HEAD, GET, OPTIONS]
+          CachedMethods: [HEAD, GET, OPTIONS]
+          Compress: true
+          CachePolicyId: !Ref WebsiteCachingDefaultPolicy
+          ResponseHeadersPolicyId: !Ref WebsiteCustomResponseHeadersPolicy
+          TargetOriginId: WebsiteOrigin
+          ViewerProtocolPolicy: redirect-to-https
+        CacheBehaviors:
+          - PathPattern: "api/*"
+            AllowedMethods: [HEAD, GET, OPTIONS]
+            CachedMethods: [HEAD, GET, OPTIONS]
+            Compress: true
+            CachePolicyId: !Ref WebsiteCachingDefaultPolicy
+            ResponseHeadersPolicyId: !Ref WebsiteCustomResponseHeadersPolicy
+            TargetOriginId: ApiOrigin
+            ViewerProtocolPolicy: redirect-to-https
+        PriceClass: PriceClass_100
+        Aliases:
+          Fn::If:
+            - UseCustomDomain
+            - - ${self:custom.domain}
+            - !Ref "AWS::NoValue"
+        DefaultRootObject: index.html
+        ViewerCertificate:
+          Fn::If:
+            - UseCustomDomain
+            -
+              AcmCertificateArn: !Ref SSLCertificate
+              MinimumProtocolVersion: TLSv1.2_2021
+              SslSupportMethod: sni-only
+            - !Ref "AWS::NoValue"
+
+  WebsiteCustomResponseHeadersPolicy:
+    Type: AWS::CloudFront::ResponseHeadersPolicy
+    Properties:
+      ResponseHeadersPolicyConfig:
+        Name: PodUptimeWebsiteCustomResponseHeadersPolicy
+        SecurityHeadersConfig:
+          ContentTypeOptions:
+            Override: true
+          FrameOptions:
+            FrameOption: SAMEORIGIN
+            Override: false
+          ReferrerPolicy:
+            ReferrerPolicy: strict-origin-when-cross-origin
+            Override: false
+          StrictTransportSecurity:
+            AccessControlMaxAgeSec: 31536000
+            IncludeSubdomains: false
+            Override: false
+            Preload: false
+          XSSProtection:
+            ModeBlock: true
+            Override: false
+            Protection: true
+        CorsConfig:
+          AccessControlAllowCredentials: false
+          OriginOverride: true
+          AccessControlMaxAgeSec: 3600
+          AccessControlAllowHeaders:
+            Items:
+              - "*"
+          AccessControlAllowMethods:
+            Items:
+              - "ALL"
+          AccessControlAllowOrigins:
+            Items:
+              - "*"
+
+  WebsiteCachingDefaultPolicy:
+    Type: AWS::CloudFront::CachePolicy
+    Properties:
+      CachePolicyConfig:
+        Name: PodUptimeWebsiteCachingDefaultPolicy
+        DefaultTTL: 60
+        MinTTL: 0
+        MaxTTL: 31536000
+        ParametersInCacheKeyAndForwardedToOrigin:
+          EnableAcceptEncodingGzip: true
+          HeadersConfig:
+            HeaderBehavior: none
+          QueryStringsConfig:
+            QueryStringBehavior: none
+          CookiesConfig:
+            CookieBehavior: none

@@ -1,0 +1,103 @@
+<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+    xmlns:atom="http://www.w3.org/2005/Atom"
+    xmlns:podcast="https://podcastindex.org/namespace/1.0" version="2.0">
+    <channel>
+        <title>PodUptime</title>
+        <link>https://poduptime.com</link>
+        <description>RSS Feed for poduptime.com</description>
+        <itunes:summary>RSS Feed for poduptime.com</itunes:summary>
+        <atom:link href="https://poduptime.com/rss/feed.xml" rel="self" type="application/rss+xml"/>
+        <language>en</language>
+        <category>Technology</category>
+        <copyright>Copyright poduptime.com</copyright>
+        <image>
+            <url>https://poduptime.com/rss/image.jpg</url>
+            <title>PodUptime</title>
+            <link>https://poduptime.com</link>
+        </image>
+        <lastBuildDate>Fri, 29 Sep 2023 23:59:59 +0000</lastBuildDate>
+        <itunes:author>PodUptime</itunes:author>
+        <itunes:owner>
+            <itunes:name>PodUptime</itunes:name>
+            <itunes:email>poduptime@spreaker.com</itunes:email>
+        </itunes:owner>
+        <itunes:image href="https://poduptime.com/rss/image.jpg"/>
+        <itunes:category text="Technology"/>
+        <itunes:explicit>false</itunes:explicit>
+        <itunes:type>episodic</itunes:type>
+        <podcast:locked>yes</podcast:locked>
+        <podcast:guid>8c419075-b03a-5e58-b608-d937f48f1bc7</podcast:guid>
+        <item>
+            <title>Original</title>
+            <link>https://poduptime.com/?from=feed-episode-original</link>
+            <guid isPermaLink="false">https://poduptime.com/?from=feed-episode-original</guid>
+            <pubDate>Fri, 29 Sep 2023 23:59:00 +0000</pubDate>
+            <enclosure url="https://poduptime.com/rss/1_second_of_silence.mp3" length="37206" type="audio/mpeg"/>
+            <itunes:duration>2</itunes:duration>
+            <itunes:explicit>false</itunes:explicit>
+        </item>
+        <item>
+            <title>Podtrac</title>
+            <link>https://poduptime.com/?from=feed-episode-podtrac</link>
+            <guid isPermaLink="false">https://poduptime.com/?from=feed-episode-podtrac</guid>
+            <pubDate>Fri, 29 Sep 2023 23:58:00 +0000</pubDate>
+            <enclosure url="https://dts.podtrac.com/redirect.mp3/poduptime.com/rss/1_second_of_silence.mp3" length="37206" type="audio/mpeg"/>
+            <itunes:duration>2</itunes:duration>
+            <itunes:explicit>false</itunes:explicit>
+        </item>
+        <item>
+            <title>OP3</title>
+            <link>https://poduptime.com/?from=feed-episode-op3</link>
+            <guid isPermaLink="false">https://poduptime.com/?from=feed-episode-op3</guid>
+            <pubDate>Fri, 29 Sep 2023 23:57:00 +0000</pubDate>
+            <enclosure url="https://op3.dev/e/poduptime.com/rss/1_second_of_silence.mp3" length="37206" type="audio/mpeg"/>
+            <itunes:duration>2</itunes:duration>
+            <itunes:explicit>false</itunes:explicit>
+        </item>
+        <item>
+            <title>Chartable</title>
+            <link>https://poduptime.com/?from=feed-episode-chartable</link>
+            <guid isPermaLink="false">https://poduptime.com/?from=feed-episode-chartable</guid>
+            <pubDate>Fri, 29 Sep 2023 23:56:00 +0000</pubDate>
+            <enclosure url="https://chrt.fm/track/F471DC/poduptime.com/rss/1_second_of_silence.mp3" length="37206" type="audio/mpeg"/>
+            <itunes:duration>2</itunes:duration>
+            <itunes:explicit>false</itunes:explicit>
+        </item>
+        <item>
+            <title>Blubrry</title>
+            <link>https://poduptime.com/?from=feed-episode-blubrry-stats</link>
+            <guid isPermaLink="false">https://poduptime.com/?from=feed-episode-blubrry-stats</guid>
+            <pubDate>Fri, 29 Sep 2023 23:55:00 +0000</pubDate>
+            <enclosure url="https://media.blubrry.com/3020970/poduptime.com/rss/1_second_of_silence.mp3" length="37206" type="audio/mpeg"/>
+            <itunes:duration>2</itunes:duration>
+            <itunes:explicit>false</itunes:explicit>
+        </item>
+        <item>
+            <title>Podcorn</title>
+            <link>https://poduptime.com/?from=feed-episode-podcorn</link>
+            <guid isPermaLink="false">https://poduptime.com/?from=feed-episode-podcorn</guid>
+            <pubDate>Fri, 29 Sep 2023 23:55:00 +0000</pubDate>
+            <enclosure url="https://pdcn.co/e/poduptime.com/rss/1_second_of_silence.mp3" length="37206" type="audio/mpeg"/>
+            <itunes:duration>2</itunes:duration>
+            <itunes:explicit>false</itunes:explicit>
+        </item>
+        <item>
+            <title>Podder</title>
+            <link>https://poduptime.com/?from=feed-episode-podderapp</link>
+            <guid isPermaLink="false">https://poduptime.com/?from=feed-episode-podderapp</guid>
+            <pubDate>Fri, 29 Sep 2023 23:54:00 +0000</pubDate>
+            <enclosure url="https://p.podderapp.com/1019872499/poduptime.com/rss/1_second_of_silence.mp3" length="37206" type="audio/mpeg"/>
+            <itunes:duration>2</itunes:duration>
+            <itunes:explicit>false</itunes:explicit>
+        </item>
+        <item>
+            <title>Podscribe</title>
+            <link>https://poduptime.com/?from=feed-episode-podscribe</link>
+            <guid isPermaLink="false">https://poduptime.com/?from=feed-episode-podscribe</guid>
+            <pubDate>Fri, 29 Sep 2023 23:53:00 +0000</pubDate>
+            <enclosure url="https://pscrb.fm/rss/p/poduptime.com/rss/1_second_of_silence.mp3" length="37206" type="audio/mpeg"/>
+            <itunes:duration>2</itunes:duration>
+            <itunes:explicit>false</itunes:explicit>
+        </item>
+    </channel>
+</rss>

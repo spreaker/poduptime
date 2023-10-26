@@ -1,0 +1,5 @@
+Resources:
+  MainEventBus:
+    Type: AWS::Events::EventBus
+    Properties:
+      Name: ${self:custom.appPrefix}-${opt:stage}-main

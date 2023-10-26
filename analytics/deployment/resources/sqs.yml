@@ -1,0 +1,6 @@
+Resources:
+  AggregateQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ${self:custom.appPrefix}-${opt:stage}-aggregate
+      VisibilityTimeout: 60

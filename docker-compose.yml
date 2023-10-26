@@ -1,0 +1,34 @@
+version: "3"
+
+services:
+  dev:
+    build:
+      context:    .
+      dockerfile: Dockerfile
+    command: [ "sh" ]
+    depends_on:
+      - postgresql
+    environment:
+      PGDATABASE: poduptime
+      PGUSER: lambda
+      PGHOST: postgresql
+      PGPORT: 5432
+      PGPASSWORD: secret
+      AWS_ACCESS_KEY_ID: key-id
+      AWS_SECRET_ACCESS_KEY: secret-access-key
+      AWS_DEFAULT_REGION: us-east-1
+    volumes:
+      - .:/workspace/poduptime
+    ports:
+      - "4321:4321"
+
+  postgresql:
+    image: postgres:15.3-alpine
+    environment:
+      POSTGRES_DB: poduptime
+      POSTGRES_USER: lambda
+      POSTGRES_PASSWORD: secret
+      POSTGRES_INITDB_ARGS: "--locale=en_US.UTF-8"
+    hostname: postgresql
+    volumes:
+      - ./analytics/deployment/database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
