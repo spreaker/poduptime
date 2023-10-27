@@ -31,7 +31,7 @@ const assertEventBridgePayload = function (events, expected) {
     assert.equal(actual.type, expected.type);
 }
 
-describe('checkEndpoint', () => {
+describe('monitor - checkEndpoint', () => {
 
     const events = use('events');
 

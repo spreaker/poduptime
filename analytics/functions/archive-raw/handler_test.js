@@ -6,7 +6,7 @@ import { formatISO, format } from 'date-fns';
 import { throwsAsync } from '../../common/assert.js'
 import { use } from "../../common/fixtures.js";
 
-describe('archiveRaw', () => {
+describe('analytics - archiveRaw', () => {
 
     const s3 = use('s3');
 

@@ -6,7 +6,7 @@ import { query } from "../../common/database.js";
 const { randomUUID } = await import('node:crypto');
 import { use } from "../../common/fixtures.js";
 
-describe('cleanupDatabase', () => {
+describe('analytics - cleanupDatabase', () => {
 
     const db = use('db');
 

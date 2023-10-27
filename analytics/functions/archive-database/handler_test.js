@@ -7,7 +7,7 @@ import { queryOne } from "../../common/database.js";
 const { randomUUID } = await import('node:crypto');
 import { use } from "../../common/fixtures.js";
 
-describe('archiveDatabase', () => {
+describe('analytics - archiveDatabase', () => {
 
     use('db');
 
