@@ -161,6 +161,36 @@ const endpoints = [
     ],
   },
   {
+    id: "audioboom",
+    label: "Audioboom",
+    website_url: "https://audioboom.com",
+    services: [
+      {
+        type: "enclosure",
+        url: "https://audioboom.com/posts/8391199.mp3?modified=1698395341&sid=5119220&source=rss",
+      },
+      {
+        type: "feed",
+        url: "https://audioboom.com/channels/5119220.rss",
+      },
+    ],
+  },
+  {
+    id: "ivoox",
+    label: "iVoox",
+    website_url: "https://podcasters.ivoox.com/",
+    services: [
+      {
+        type: "enclosure",
+        url: "https://www.ivoox.com/podcast-poduptime_fg_f12312823_filtro_1.xml",
+      },
+      {
+        type: "feed",
+        url: "https://www.ivoox.com/sample-episode_mf_118495604_feed_1.mp3?d=1698394289",
+      },
+    ],
+  },
+  {
     id: "podtrac",
     label: "Podtrac",
     website_url: "https://analytics.podtrac.com",
