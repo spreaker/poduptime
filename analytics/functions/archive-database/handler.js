@@ -22,5 +22,18 @@ export const archiveDatabase = async function (event, context) {
         result.type, result.region, result.available,
         result.duration
     ]);
+
+    if (result.available < 1) {
+        await query(`
+            INSERT INTO unavailables
+            (id, timestamp, endpoint, type, region, details)
+            VALUES
+            ($1, $2, $3, $4, $5, $6)
+            ON CONFLICT DO NOTHING
+        `, [
+            result.id, result.timestamp, result.endpoint,
+            result.type, result.region, JSON.stringify(result)
+        ]);
+    }
 }
 
