@@ -1,4 +1,4 @@
-import { describe, it, beforeEach, afterEach } from 'node:test';
+import { describe, it, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { aggregateWorker } from "./handler.js"
@@ -275,20 +275,11 @@ describe('analytics - aggregateWorker', () => {
             await aggregateWorker({ Records: [{ body: JSON.stringify({ type: "recent-issues", endpoint: "service", region: "global" }) }] });
 
             const s3calls = s3.calls(PutObjectCommand);
-
             assert.equal(s3calls.length, 1);
-
-            const expected = {
-                timestamp: /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z)/, // is an ISO 8601 timestamp
-                data: [
-                    { foo: 'bar1' },
-                    { foo: 'bar2' }
-                ]
-            };
-
-            const actual = JSON.parse(s3calls[0].args[0].input.Body);
-            assert.deepStrictEqual(actual.data, expected.data);
-            assert.match(actual.timestamp, expected.timestamp);
+            assert.deepStrictEqual(s3calls[0].args[0].input.Body, JSON.stringify([
+                { foo: 'bar1' },
+                { foo: 'bar2' }
+            ]));
             assert.deepStrictEqual(s3calls[0].args[0].input.Key, "api/recent-issues-service-global.json");
         });
 
@@ -297,19 +288,10 @@ describe('analytics - aggregateWorker', () => {
             await aggregateWorker({ Records: [{ body: JSON.stringify({ type: "recent-issues", endpoint: "service", region: "antartica-1" }) }] });
 
             const s3calls = s3.calls(PutObjectCommand);
-
             assert.equal(s3calls.length, 1);
-
-            const expected = {
-                timestamp: /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z)/, // is an ISO 8601 timestamp
-                data: [
-                    { foo: 'bar1' }
-                ]
-            };
-
-            const actual = JSON.parse(s3calls[0].args[0].input.Body);
-            assert.deepStrictEqual(actual.data, expected.data);
-            assert.match(actual.timestamp, expected.timestamp);
+            assert.deepStrictEqual(s3calls[0].args[0].input.Body, JSON.stringify([
+                { foo: 'bar1' }
+            ]));
             assert.deepStrictEqual(s3calls[0].args[0].input.Key, "api/recent-issues-service-antartica-1.json");
         });
 

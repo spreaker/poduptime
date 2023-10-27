@@ -179,10 +179,7 @@ const aggreateRecentIssues = async function (aggregation) {
     await s3Client.send(new PutObjectCommand({
         Bucket: process.env.WEBSITE_BUCKET,
         Key: `api/recent-issues-${endpoint}-${region}.json`,
-        Body: JSON.stringify({
-            timestamp: formatISO(new Date()),
-            data: result
-        }),
+        Body: JSON.stringify(result),
         ContentType: "application/json"
     }));
 }
