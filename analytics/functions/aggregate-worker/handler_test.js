@@ -250,6 +250,83 @@ describe('analytics - aggregateWorker', () => {
         });
     });
 
+    describe('recent-issues', () => {
+
+        beforeEach(async () => {
+
+            const unavailables = [
+                { id: randomUUID(), timestamp: formatISO(new Date()), endpoint: "service", type: "feed", region: "antartica-1", details: JSON.stringify({ foo: 'bar1' }) },
+                { id: randomUUID(), timestamp: formatISO(new Date()), endpoint: "service", type: "feed", region: "antartica-2", details: JSON.stringify({ foo: 'bar2' }) }
+            ];
+
+            for (const unavailable of unavailables) {
+                await db.query(`
+                INSERT INTO unavailables (id, timestamp, endpoint, type, region, details)
+                VALUES ($1, $2, $3, $4, $5, $6)
+            `, [
+                    unavailable.id, unavailable.timestamp, unavailable.endpoint,
+                    unavailable.type, unavailable.region, unavailable.details
+                ]);
+            }
+        });
+
+        it('should run the query for global region and upload to S3', async (t) => {
+
+            await aggregateWorker({ Records: [{ body: JSON.stringify({ type: "recent-issues", endpoint: "service", region: "global" }) }] });
+
+            const s3calls = s3.calls(PutObjectCommand);
+
+            assert.equal(s3calls.length, 1);
+
+            const expected = {
+                timestamp: /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z)/, // is an ISO 8601 timestamp
+                data: [
+                    { foo: 'bar1' },
+                    { foo: 'bar2' }
+                ]
+            };
+
+            const actual = JSON.parse(s3calls[0].args[0].input.Body);
+            assert.deepStrictEqual(actual.data, expected.data);
+            assert.match(actual.timestamp, expected.timestamp);
+            assert.deepStrictEqual(s3calls[0].args[0].input.Key, "api/recent-issues-service-global.json");
+        });
+
+        it('should run the query for specific region and upload to S3', async (t) => {
+
+            await aggregateWorker({ Records: [{ body: JSON.stringify({ type: "recent-issues", endpoint: "service", region: "antartica-1" }) }] });
+
+            const s3calls = s3.calls(PutObjectCommand);
+
+            assert.equal(s3calls.length, 1);
+
+            const expected = {
+                timestamp: /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z)/, // is an ISO 8601 timestamp
+                data: [
+                    { foo: 'bar1' }
+                ]
+            };
+
+            const actual = JSON.parse(s3calls[0].args[0].input.Body);
+            assert.deepStrictEqual(actual.data, expected.data);
+            assert.match(actual.timestamp, expected.timestamp);
+            assert.deepStrictEqual(s3calls[0].args[0].input.Key, "api/recent-issues-service-antartica-1.json");
+        });
+
+        it('should throw on S3 errors', async (t) => {
+
+            s3.rejects('simulated error');
+
+            await throwsAsync(aggregateWorker({
+                Records: [{
+                    body: JSON.stringify({
+                        type: "recent-issues", region: "antartica", endpoint: "service"
+                    })
+                }]
+            }), null);
+        });
+    });
+
     describe('unknown', () => {
 
         it('should throw on unknown aggregation', async (t) => {
