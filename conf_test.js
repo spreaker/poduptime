@@ -4,6 +4,14 @@ import assert from 'node:assert/strict';
 import prod from "./conf/config_prod.js";
 import nonprod from "./conf/config_nonprod.js";
 
+const assertValidUrl = (url, message) => {
+    try {
+        assert.ok(new URL(url), message);
+    } catch (e) {
+        assert.ok(false, message);
+    }
+}
+
 describe('config', () => {
 
     const envs = [{ name: "prod", config: prod }, { name: "nonprod", config: nonprod }]
@@ -33,8 +41,8 @@ describe('config', () => {
 
                     assert.ok(endpoint.id, "An id is defined");
                     assert.ok(endpoint.label, "A label is defined");
-                    assert.ok(endpoint.website_url, "A website_url is defined");
                     assert.ok(endpoint.services, "Services are defined");
+                    assertValidUrl(endpoint.website_url, "A website_url is defined and valid");
                 });
 
                 describe(`for endpoint ${endpoint.id}`, () => {
@@ -44,10 +52,11 @@ describe('config', () => {
                         it(`service ${service.type} should be valid`, () => {
 
                             assert.ok(service.type, "Service type is defined");
-                            assert.ok(service.url, "Service url is defined");
+                            assert.ok(["feed", "enclosure", "prefix"].includes(service.type), "Service type is supported");
 
+                            assertValidUrl(service.url, "Service url is defined and valid");
                             if ("prefix" === service.type) {
-                                assert.ok(service.expected_url, "Expected url is defined");
+                                assertValidUrl(service.expected_url, "Expected url is defined and valid");
                             }
                         });
                     }
