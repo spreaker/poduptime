@@ -13,7 +13,8 @@ const expectedCalls = flattenDeep(config.regions.map((region) => {
         config.endpoints.map((endpoint) => {
             return [
                 { type: "detailed", region: region.id, endpoint: endpoint.id },
-                { type: "instant-endpoint", region: region.id, endpoint: endpoint.id }
+                { type: "instant-endpoint", region: region.id, endpoint: endpoint.id },
+                { type: "recent-issues", region: region.id, endpoint: endpoint.id },
             ];
         })
     );
