@@ -9,7 +9,7 @@ import { formatISO, startOfMinute, subMinutes, eachMinuteOfInterval } from 'date
 const { randomUUID } = await import('node:crypto');
 import { use } from "../../common/fixtures.js";
 
-describe('aggregateWorker', () => {
+describe('analytics - aggregateWorker', () => {
 
     const db = use('db');
     const s3 = use('s3');

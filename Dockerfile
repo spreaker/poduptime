@@ -40,4 +40,5 @@ COPY conf           conf
 COPY analytics      analytics
 COPY monitor        monitor
 COPY website        website
+COPY conf_test.js   .*
 COPY package*.json  ./

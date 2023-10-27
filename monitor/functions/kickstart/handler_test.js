@@ -5,7 +5,7 @@ import { kickstart } from "./handler.js"
 import config from "../../conf/config.js";
 import { use } from "../../common/fixtures.js";
 
-describe('kickstart', () => {
+describe('monitor - kickstart', () => {
 
     const sqs = use('sqs');
 

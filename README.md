@@ -63,16 +63,16 @@ The command also also starts a sidecar container with PostgreSQL. This configura
 
 Both the `monitor` and `analytics` components include automated tests. These tests run automatically on each pull request (PR) and can also be run manually from within the development container.
 
-To run the tests from inside each application folder, use the following commands:
+To run the tests use the following commands:
 
 ```shell
-node --test
+npm run test
 ```
 
 If you prefer to run the tests in watch mode, allowing them to re-run automatically after each code change, use:
 
 ```shell
-node --test --watch .
+npm run test-watch
 ```
 
 ### Running website

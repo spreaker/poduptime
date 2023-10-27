@@ -19,7 +19,7 @@ const expectedCalls = flattenDeep(config.regions.map((region) => {
     );
 }));
 
-describe('aggregateMinutely', () => {
+describe('analytics - aggregateMinutely', () => {
 
     const sqs = use('sqs');
 
