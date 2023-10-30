@@ -1,4 +1,4 @@
-import { Detail, Instant, ServiceInstant } from '../types'
+import { Detail, Instant, Issue, ServiceInstant } from '../types'
 import { API_BASE_URL } from './Constants'
 
 export async function fetchInstantData(region: string): Promise<Instant[]> {
@@ -37,16 +37,29 @@ export async function fetchDetailedData(endpoint: string, region: string): Promi
 		})
 }
 
-export async function fetchDetailedAndServiceInstantsData(
+export async function fetchRecentIssues(endpoint: string, region: string): Promise<Issue[]> {
+	return await fetch(`${API_BASE_URL}/api/recent-issues-${endpoint}-${region}.json`)
+		.then((response) => response.json() as Promise<Issue[]>)
+		.then((data) => {
+			return data
+		})
+		.catch(() => {
+			return []
+		})
+}
+
+export async function fetchDetailedAndServiceInstantsAndRecentIssuesData(
 	endpoint: string,
 	region: string
 ): Promise<{
 	detailed: Detail[]
 	instants: ServiceInstant[]
+	issues: Issue[]
 }> {
-	const [detailed, instants] = await Promise.all([
+	const [detailed, instants, issues] = await Promise.all([
 		fetchDetailedData(endpoint, region),
-		fetchServiceInstantsData(endpoint, region)
+		fetchServiceInstantsData(endpoint, region),
+		fetchRecentIssues(endpoint, region)
 	])
-	return { detailed, instants }
+	return { detailed, instants, issues }
 }

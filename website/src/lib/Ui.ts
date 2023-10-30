@@ -1,4 +1,4 @@
-import { Detail, Instant, ServiceInstant } from '../types'
+import { Detail, Instant, Issue, ServiceInstant } from '../types'
 import { HOSTING, PREFIXES, SERVICE_TYPES } from './Constants'
 
 const STATUS_BADGE_CLASSES = {
@@ -118,4 +118,49 @@ export function updateDetailedGrid(data: Detail[]) {
 			}).format(time)}`
 		}
 	})
+}
+
+function renderIssue(issue: Issue) {
+	return `
+		<li class="pt-1">
+			<div
+				onclick="document.getElementById('${`issue-detail-${issue.id}`}').classList.toggle('hidden')"
+				class="underline cursor-pointer text-sm"
+			>
+				${new Intl.DateTimeFormat('default', {
+					year: 'numeric',
+					month: 'numeric',
+					day: 'numeric',
+					minute: 'numeric',
+					hour: 'numeric',
+					timeZone: 'UTC'
+				}).format(new Date(issue.timestamp))} | ${issue.type} | ${issue.region}
+			</div>
+			<pre id="issue-detail-${issue.id}" class="text-xs hidden pt-1">${JSON.stringify(
+				issue,
+				null,
+				2
+			)}</pre>
+		</li>`
+}
+
+export function updateRecentIssues(issues: Issue[] | null) {
+	const element = document.getElementById('recent-issues')
+	if (!element) return
+	// Loading
+	if (!issues) {
+		element.innerHTML = `<div class="text-sm">...</div>`
+		return
+	}
+	// No issues
+	if (issues.length === 0) {
+		element.innerHTML = `<div class="text-sm">No recent issues</div>`
+		return
+	}
+	// Issues
+	element.innerHTML = `
+	<ul class="list-disc list-outside pl-4">
+		${issues.map(renderIssue).join('')}
+	</ul>
+	`
 }

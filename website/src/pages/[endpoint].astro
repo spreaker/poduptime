@@ -145,11 +145,16 @@ const endpointServices = MONITORED[endpointId || ''].services
 			<a class="text-xs underline" href="/about/">Learn more ↗</a>
 		</li>
 	</ul>
+	<div class="flex items-baseline border-b-2 border-dotted border-pink-100 pt-6">
+		<h2 class="flex-grow pb-2 text-2xl font-bold text-pink-100">Recent Issues</h2>
+		<span class="text-xs">10 most recent</span>
+	</div>
+	<div class="pt-2" id="recent-issues"><div class="text-sm">...</div></div>
 </Layout>
 
 <script>
-	import { fetchDetailedAndServiceInstantsData } from '../lib/Api'
-	import { updateDetailedGrid, updateServiceStatusBadges } from '../lib/Ui'
+	import { fetchDetailedAndServiceInstantsAndRecentIssuesData } from '../lib/Api'
+	import { updateDetailedGrid, updateServiceStatusBadges, updateRecentIssues } from '../lib/Ui'
 
 	const vars = JSON.parse(document.getElementById('data')?.dataset.vars || '{}')
 	const endpointId = vars.id || ''
@@ -158,13 +163,23 @@ const endpointServices = MONITORED[endpointId || ''].services
 		const region = (event.target as HTMLSelectElement).value
 		updateDetailedGrid([])
 		updateServiceStatusBadges(endpointId, [])
-		const { instants, detailed } = await fetchDetailedAndServiceInstantsData(endpointId, region)
+		updateRecentIssues(null)
+		const { instants, detailed, issues } = await fetchDetailedAndServiceInstantsAndRecentIssuesData(
+			endpointId,
+			region
+		)
 		updateDetailedGrid(detailed)
 		updateServiceStatusBadges(endpointId, instants)
+		updateRecentIssues(issues)
 	})
 
 	// Render data for global region
-	const { instants, detailed } = await fetchDetailedAndServiceInstantsData(endpointId, 'global')
+	const { instants, detailed, issues } = await fetchDetailedAndServiceInstantsAndRecentIssuesData(
+		endpointId,
+		'global'
+	)
+
 	updateDetailedGrid(detailed)
 	updateServiceStatusBadges(endpointId, instants)
+	updateRecentIssues(issues)
 </script>
