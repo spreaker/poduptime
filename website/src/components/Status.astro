@@ -1,34 +1,34 @@
 ---
 interface Props {
-	type: 'UP' | 'DOWN' | 'PARTIAL' | 'UNKNOWN' | 'LOADING'
+  type: 'UP' | 'DOWN' | 'PARTIAL' | 'UNKNOWN' | 'LOADING'
 }
 
 const { type } = Astro.props
 
 const text = {
-	UP: 'UP',
-	DOWN: 'DOWN',
-	PARTIAL: 'PARTIAL',
-	UNKNOWN: 'UNKNOWN',
-	LOADING: '...'
+  UP: 'UP',
+  DOWN: 'DOWN',
+  PARTIAL: 'PARTIAL',
+  UNKNOWN: 'UNKNOWN',
+  LOADING: '...'
 }
 
 const base = [
-	'rounded border-2',
-	'px-2',
-	'py-1',
-	'text-center',
-	'text-xs',
-	'font-bold',
-	'inline-block'
+  'rounded border-2',
+  'px-2',
+  'py-1',
+  'text-center',
+  'text-xs',
+  'font-bold',
+  'inline-block'
 ]
 
 const status = {
-	UP: ['text-lime-300', 'border-lime-600', 'hover:border-lime-300'],
-	DOWN: ['text-red-300', 'border-red-600', 'hover:border-red-300'],
-	PARTIAL: ['text-yellow-300', 'border-yellow-600', 'hover:border-yellow-300'],
-	UNKNOWN: ['text-gray-300', 'border-gray-600', 'hover:border-gray-300'],
-	LOADING: ['text-gray-300', 'border-gray-600', 'hover:border-gray-300']
+  UP: ['text-lime-300', 'border-lime-600', 'hover:border-lime-300'],
+  DOWN: ['text-red-300', 'border-red-600', 'hover:border-red-300'],
+  PARTIAL: ['text-yellow-300', 'border-yellow-600', 'hover:border-yellow-300'],
+  UNKNOWN: ['text-gray-300', 'border-gray-600', 'hover:border-gray-300'],
+  LOADING: ['text-gray-300', 'border-gray-600', 'hover:border-gray-300']
 }
 ---
 

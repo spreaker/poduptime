@@ -4,90 +4,90 @@ import { HOSTING, PREFIXES, REGIONS } from '../lib/Constants'
 ---
 
 <Layout title="PodUptime | Real time monitoring overview">
-	<div class="flex flex-col items-start sm:flex-row sm:items-center">
-		<h2 class="flex-grow text-4xl font-bold text-pink-100">Real time monitoring</h2>
-		<select
-			id="region"
-			class="mt-2 rounded border-2 border-pink-200 bg-blue-950 px-2 py-2 text-center text-xs font-bold text-pink-200 sm:mt-0"
-		>
-			{
-				REGIONS.map((region) => {
-					return <option value={region.id}>{region.label}</option>
-				})
-			}
-		</select>
-	</div>
+  <div class="flex flex-col items-start sm:flex-row sm:items-center">
+    <h2 class="flex-grow text-4xl font-bold text-pink-100">Real time monitoring</h2>
+    <select
+      id="region"
+      class="mt-2 rounded border-2 border-pink-200 bg-blue-950 px-2 py-2 text-center text-xs font-bold text-pink-200 sm:mt-0"
+    >
+      {
+        REGIONS.map((region) => {
+          return <option value={region.id}>{region.label}</option>
+        })
+      }
+    </select>
+  </div>
 
-	<p class="pb-6 pt-4">
-		PodUptime is a distributed uptime monitoring system for the podcast industry, measuring
-		availability of hosting platforms and tracking prefixes.&nbsp;<a
-			class="underline"
-			href="/about/">Learn how we measure ↗</a
-		>
-	</p>
+  <p class="pb-6 pt-4">
+    PodUptime is a distributed uptime monitoring system for the podcast industry, measuring
+    availability of hosting platforms and tracking prefixes.&nbsp;<a
+      class="underline"
+      href="/about/">Learn how we measure ↗</a
+    >
+  </p>
 
-	<div class="flex items-baseline border-b-2 border-dotted border-pink-100 pb-2">
-		<h2 class="flex-grow text-2xl font-bold text-pink-100">Hosting Platforms</h2>
-		<span class="text-xs">last 30 minutes</span>
-	</div>
-	<ul class="pt-4">
-		{
-			HOSTING.map(({ id, label }) => {
-				return (
-					<li class="flex items-center justify-between pb-1">
-						<>
-							<a href={`/${id}`} class="hover:cursor-pointer hover:underline">
-								{label}
-							</a>
-							<div
-								id={`status-badge-${id}`}
-								class="w-24 rounded border-2 border-gray-600 px-2 py-1 text-center text-xs font-bold text-gray-300"
-							>
-								...
-							</div>
-						</>
-					</li>
-				)
-			})
-		}
-	</ul>
-	<div class="flex items-baseline border-b-2 border-dotted border-pink-100 py-8 pb-2">
-		<h2 class="flex-grow text-2xl font-bold text-pink-100">Tracking Prefixes</h2>
-		<span class="text-xs">last 30 minutes</span>
-	</div>
-	<ul class="pt-4">
-		{
-			PREFIXES.map(({ id, label }) => {
-				return (
-					<li class="flex items-center justify-between pb-1">
-						<>
-							<a href={`/${id}`} class="hover:cursor-pointer hover:underline">
-								{label}
-							</a>
-							<div
-								id={`status-badge-${id}`}
-								class="w-24 rounded border-2 border-gray-600 px-2 py-1 text-center text-xs font-bold text-gray-300"
-							>
-								...
-							</div>
-						</>
-					</li>
-				)
-			})
-		}
-	</ul>
+  <div class="flex items-baseline border-b-2 border-dotted border-pink-100 pb-2">
+    <h2 class="flex-grow text-2xl font-bold text-pink-100">Hosting Platforms</h2>
+    <span class="text-xs">last 30 minutes</span>
+  </div>
+  <ul class="pt-4">
+    {
+      HOSTING.map(({ id, label }) => {
+        return (
+          <li class="flex items-center justify-between pb-1">
+            <>
+              <a href={`/${id}`} class="hover:cursor-pointer hover:underline">
+                {label}
+              </a>
+              <div
+                id={`status-badge-${id}`}
+                class="w-24 rounded border-2 border-gray-600 px-2 py-1 text-center text-xs font-bold text-gray-300"
+              >
+                ...
+              </div>
+            </>
+          </li>
+        )
+      })
+    }
+  </ul>
+  <div class="flex items-baseline border-b-2 border-dotted border-pink-100 py-8 pb-2">
+    <h2 class="flex-grow text-2xl font-bold text-pink-100">Tracking Prefixes</h2>
+    <span class="text-xs">last 30 minutes</span>
+  </div>
+  <ul class="pt-4">
+    {
+      PREFIXES.map(({ id, label }) => {
+        return (
+          <li class="flex items-center justify-between pb-1">
+            <>
+              <a href={`/${id}`} class="hover:cursor-pointer hover:underline">
+                {label}
+              </a>
+              <div
+                id={`status-badge-${id}`}
+                class="w-24 rounded border-2 border-gray-600 px-2 py-1 text-center text-xs font-bold text-gray-300"
+              >
+                ...
+              </div>
+            </>
+          </li>
+        )
+      })
+    }
+  </ul>
 </Layout>
 
 <script>
-	import { fetchInstantData } from '../lib/Api'
-	import { updateStatusBadges } from '../lib/Ui'
+  import { fetchInstantData } from '../lib/Api'
+  import { updateStatusBadges } from '../lib/Ui'
 
-	document.getElementById('region')?.addEventListener('change', async (event) => {
-		const region = (event.target as HTMLSelectElement).value
-		updateStatusBadges([])
-		updateStatusBadges(await fetchInstantData(region))
-	})
+  document.getElementById('region')?.addEventListener('change', async (event) => {
+    const region = (event.target as HTMLSelectElement).value
+    updateStatusBadges([])
+    updateStatusBadges(await fetchInstantData(region))
+  })
 
-	// Render data for global region
-	updateStatusBadges(await fetchInstantData('global'))
+  // Render data for global region
+  updateStatusBadges(await fetchInstantData('global'))
 </script>
