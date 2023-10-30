@@ -5,21 +5,21 @@ import { MONITORED, REGIONS } from '../lib/Constants'
 const MATRIX: number[][] = []
 
 for (let i = 0; i < 24; i++) {
-	let ROW: number[] = []
-	for (let j = 0; j < 60; j++) {
-		ROW.push(1)
-	}
-	MATRIX.push(ROW)
+  let ROW: number[] = []
+  for (let j = 0; j < 60; j++) {
+    ROW.push(1)
+  }
+  MATRIX.push(ROW)
 }
 
 export function getStaticPaths() {
-	return Object.keys(MONITORED).map((id) => {
-		return {
-			params: {
-				endpoint: id
-			}
-		}
-	})
+  return Object.keys(MONITORED).map((id) => {
+    return {
+      params: {
+        endpoint: id
+      }
+    }
+  })
 }
 
 const endpointId = Astro.params.endpoint
@@ -29,142 +29,157 @@ const endpointServices = MONITORED[endpointId || ''].services
 ---
 
 <Layout title={`PodUptime | ${endpointLabel}`} headerLink="/">
-	<div id="data" data-vars={JSON.stringify({ id: endpointId })}></div>
-	<div class="flex flex-col items-start sm:flex-row sm:items-center">
-		<h1 class="flex-grow text-4xl font-bold text-pink-100">{endpointLabel}</h1>
-		<select
-			id="region"
-			class="mt-2 rounded border-2 border-pink-200 bg-blue-950 px-2 py-2 text-center text-xs font-bold text-pink-200 sm:mt-0"
-		>
-			{
-				REGIONS.map((region) => {
-					return <option value={region.id}>{region.label}</option>
-				})
-			}
-		</select>
-	</div>
-	<p class="pb-6 pt-4">
-		On this page, you can view the detailed status of the monitored endpoint for <a
-			class="underline"
-			target="_blank"
-			href={endpointWebsiteUrl}>{endpointLabel} ↗</a
-		>. The status is updated every minute from multiple locations around the world. All times are in
+  <div id="data" data-vars={JSON.stringify({ id: endpointId })}></div>
+  <div class="flex flex-col items-start sm:flex-row sm:items-center">
+    <h1 class="flex-grow text-4xl font-bold text-pink-100">{endpointLabel}</h1>
+    <select
+      id="region"
+      class="mt-2 rounded border-2 border-pink-200 bg-blue-950 px-2 py-2 text-center text-xs font-bold text-pink-200 sm:mt-0"
+    >
+      {
+        REGIONS.map((region) => {
+          return <option value={region.id}>{region.label}</option>
+        })
+      }
+    </select>
+  </div>
+  <p class="pb-6 pt-4">
+    On this page, you can view the detailed status of the monitored endpoint for <a
+      class="underline"
+      target="_blank"
+      href={endpointWebsiteUrl}>{endpointLabel} ↗</a
+    >. The status is updated every minute from multiple locations around the world. All times are in
 
 
-		<code>UTC</code>.
-	</p>
-	<div class="flex items-baseline border-b-2 border-dotted border-pink-100 pb-2">
-		<h2 class="flex-grow text-2xl font-bold text-pink-100">Instant Status</h2>
-		<span class="text-xs">last 30 minutes</span>
-	</div>
-	<div class="pt-4">
-		<p class="pb-2 text-xs font-bold">Monitored URL(s):</p>
-		{
-			endpointServices.map((service) => {
-				return (
-					<div class="flex items-center justify-between pb-2">
-						<code class="break-all pr-2 text-xs">{service.url}</code>
-						<div
-							id={`status-badge-${endpointId}-${service.type}`}
-							class="inline-block w-24 shrink-0 rounded border-2 border-gray-600 px-2 py-1 text-center text-xs font-bold text-gray-300"
-						>
-							...
-						</div>
-					</div>
-				)
-			})
-		}
+    <code>UTC</code>.
+  </p>
+  <div class="flex items-baseline border-b-2 border-dotted border-pink-100 pb-2">
+    <h2 class="flex-grow text-2xl font-bold text-pink-100">Instant Status</h2>
+    <span class="text-xs">last 30 minutes</span>
+  </div>
+  <div class="pt-4">
+    <p class="pb-2 text-xs font-bold">Monitored URL(s):</p>
+    {
+      endpointServices.map((service) => {
+        return (
+          <div class="flex items-center justify-between pb-2">
+            <code class="break-all pr-2 text-xs">{service.url}</code>
+            <div
+              id={`status-badge-${endpointId}-${service.type}`}
+              class="inline-block w-24 shrink-0 rounded border-2 border-gray-600 px-2 py-1 text-center text-xs font-bold text-gray-300"
+            >
+              ...
+            </div>
+          </div>
+        )
+      })
+    }
 
-		<div class="flex-shrink break-after-all break-all pr-4 text-xs"></div>
-	</div>
-	<div class="flex items-baseline border-b-2 border-dotted border-pink-100 pt-6">
-		<h2 class="flex-grow pb-2 text-2xl font-bold text-pink-100">Detailed Status</h2>
-		<span class="text-xs">last 24 hours</span>
-	</div>
-	<table class="mt-4 w-full opacity-80">
-		<tbody>
-			{
-				MATRIX.map((row, i) => {
-					return (
-						<tr>
-							{row.map((col, j) => (
-								<td
-									id={`detail-cell-${i}-${j}`}
-									class={[
-										'bg-gray-500',
-										'hover:bg-gray-300',
-										'text-white',
-										'border',
-										'border-transparent',
-										'w-2',
-										'sm:w-3',
-										'h-2',
-										'sm:h-3',
-										'aspect-square',
-										'group',
-										'transition-colors',
-										'duration-500',
-										'relative'
-									].join(' ')}
-								>
-									<span
-										id={`detail-cell-text-${i}-${j}`}
-										class="absolute top-4 z-10 hidden rounded bg-zinc-950 px-3 py-2 text-xs font-thin group-hover:block"
-									>
-										...
-									</span>
-								</td>
-							))}
-						</tr>
-					)
-				})
-			}
-		</tbody>
-	</table>
-	<ul class="grid grid-cols-2 pt-1 sm:flex">
-		<li>
-			<span class="mr-2 inline-block h-3 w-3 bg-lime-500"></span><span class="pr-2 text-xs">UP</span
-			>
-		</li>
-		<li>
-			<span class="mr-2 inline-block h-3 w-3 bg-yellow-500"></span><span class="pr-2 text-xs"
-				>PARTIAL</span
-			>
-		</li>
-		<li>
-			<span class="mr-2 inline-block h-3 w-3 bg-red-500"></span><span class="pr-2 text-xs"
-				>DOWN</span
-			>
-		</li>
-		<li>
-			<span class="mr-2 inline-block h-3 w-3 bg-gray-500"></span><span class="pr-2 text-xs"
-				>UNKNOWN</span
-			>
-		</li>
-		<li class="sm:ml-auto">
-			<a class="text-xs underline" href="/about/">Learn more ↗</a>
-		</li>
-	</ul>
+    <div class="flex-shrink break-after-all break-all pr-4 text-xs"></div>
+  </div>
+  <div class="flex items-baseline border-b-2 border-dotted border-pink-100 pt-6">
+    <h2 class="flex-grow pb-2 text-2xl font-bold text-pink-100">Detailed Status</h2>
+    <span class="text-xs">last 24 hours</span>
+  </div>
+  <table class="mt-4 w-full opacity-80">
+    <tbody>
+      {
+        MATRIX.map((row, i) => {
+          return (
+            <tr>
+              {row.map((col, j) => (
+                <td
+                  id={`detail-cell-${i}-${j}`}
+                  class={[
+                    'bg-gray-500',
+                    'hover:bg-gray-300',
+                    'text-white',
+                    'border',
+                    'border-transparent',
+                    'w-2',
+                    'sm:w-3',
+                    'h-2',
+                    'sm:h-3',
+                    'aspect-square',
+                    'group',
+                    'transition-colors',
+                    'duration-500',
+                    'relative'
+                  ].join(' ')}
+                >
+                  <span
+                    id={`detail-cell-text-${i}-${j}`}
+                    class="absolute top-4 z-10 hidden rounded bg-zinc-950 px-3 py-2 text-xs font-thin group-hover:block"
+                  >
+                    ...
+                  </span>
+                </td>
+              ))}
+            </tr>
+          )
+        })
+      }
+    </tbody>
+  </table>
+  <ul class="grid grid-cols-2 pt-1 sm:flex">
+    <li>
+      <span class="mr-2 inline-block h-3 w-3 bg-lime-500"></span><span class="pr-2 text-xs">UP</span
+      >
+    </li>
+    <li>
+      <span class="mr-2 inline-block h-3 w-3 bg-yellow-500"></span><span class="pr-2 text-xs"
+        >PARTIAL</span
+      >
+    </li>
+    <li>
+      <span class="mr-2 inline-block h-3 w-3 bg-red-500"></span><span class="pr-2 text-xs"
+        >DOWN</span
+      >
+    </li>
+    <li>
+      <span class="mr-2 inline-block h-3 w-3 bg-gray-500"></span><span class="pr-2 text-xs"
+        >UNKNOWN</span
+      >
+    </li>
+    <li class="sm:ml-auto">
+      <a class="text-xs underline" href="/about/">Learn more ↗</a>
+    </li>
+  </ul>
+  <div class="flex items-baseline border-b-2 border-dotted border-pink-100 pt-6">
+    <h2 class="flex-grow pb-2 text-2xl font-bold text-pink-100">Recent Issues</h2>
+    <span class="text-xs">10 most recent</span>
+  </div>
+  <div class="pt-2" id="recent-issues"><div class="text-sm">...</div></div>
 </Layout>
 
 <script>
-	import { fetchDetailedAndServiceInstantsData } from '../lib/Api'
-	import { updateDetailedGrid, updateServiceStatusBadges } from '../lib/Ui'
+  import { fetchDetailedAndServiceInstantsAndRecentIssuesData } from '../lib/Api'
+  import { updateDetailedGrid, updateServiceStatusBadges, updateRecentIssues } from '../lib/Ui'
 
-	const vars = JSON.parse(document.getElementById('data')?.dataset.vars || '{}')
-	const endpointId = vars.id || ''
+  const vars = JSON.parse(document.getElementById('data')?.dataset.vars || '{}')
+  const endpointId = vars.id || ''
 
-	document.getElementById('region')?.addEventListener('change', async (event) => {
-		const region = (event.target as HTMLSelectElement).value
-		updateDetailedGrid([])
-		updateServiceStatusBadges(endpointId, [])
-		const { instants, detailed } = await fetchDetailedAndServiceInstantsData(endpointId, region)
-		updateDetailedGrid(detailed)
-		updateServiceStatusBadges(endpointId, instants)
-	})
+  document.getElementById('region')?.addEventListener('change', async (event) => {
+    const region = (event.target as HTMLSelectElement).value
+    updateDetailedGrid([])
+    updateServiceStatusBadges(endpointId, [])
+    updateRecentIssues(null)
+    const { instants, detailed, issues } = await fetchDetailedAndServiceInstantsAndRecentIssuesData(
+      endpointId,
+      region
+    )
+    updateDetailedGrid(detailed)
+    updateServiceStatusBadges(endpointId, instants)
+    updateRecentIssues(issues)
+  })
 
-	// Render data for global region
-	const { instants, detailed } = await fetchDetailedAndServiceInstantsData(endpointId, 'global')
-	updateDetailedGrid(detailed)
-	updateServiceStatusBadges(endpointId, instants)
+  // Render data for global region
+  const { instants, detailed, issues } = await fetchDetailedAndServiceInstantsAndRecentIssuesData(
+    endpointId,
+    'global'
+  )
+
+  updateDetailedGrid(detailed)
+  updateServiceStatusBadges(endpointId, instants)
+  updateRecentIssues(issues)
 </script>
