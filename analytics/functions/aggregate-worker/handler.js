@@ -155,6 +155,35 @@ const aggregateDetailed = async function (aggregation) {
     }));
 }
 
+const aggreateRecentIssues = async function (aggregation) {
+
+    const region = aggregation.region;
+    const endpoint = aggregation.endpoint;
+
+    let rows = "global" === region ?
+        (await query(`
+            SELECT details
+            FROM unavailables
+            WHERE endpoint = $1
+            ORDER BY timestamp DESC LIMIT 10
+        `, [endpoint])).rows :
+        (await query(`
+            SELECT details
+            FROM unavailables
+            WHERE endpoint = $1
+            AND region = $2 ORDER BY timestamp DESC LIMIT 10
+        `, [endpoint, region])).rows;
+
+    let result = rows.map((row) => JSON.parse(row.details));
+
+    await s3Client.send(new PutObjectCommand({
+        Bucket: process.env.WEBSITE_BUCKET,
+        Key: `api/recent-issues-${endpoint}-${region}.json`,
+        Body: JSON.stringify(result),
+        ContentType: "application/json"
+    }));
+}
+
 export const aggregateWorker = async function (event, context) {
 
     const aggregation = JSON.parse(event.Records[0].body);
@@ -165,6 +194,8 @@ export const aggregateWorker = async function (event, context) {
         await aggregateDetailed(aggregation);
     } else if ("instant-endpoint" === aggregation.type) {
         await aggregateInstantEndpoint(aggregation);
+    } else if ("recent-issues" === aggregation.type) {
+        await aggreateRecentIssues(aggregation);
     } else {
         console.error("Unknown aggregation", event);
     }

@@ -3,36 +3,28 @@ import config from "../../conf/config.js";
 
 const client = new SQSClient({});
 
+const scheduleAggregation = async (payload) => {
+    try {
+        await client.send(new SendMessageCommand({
+            QueueUrl: process.env.AGGREGATE_QUEUE_URL,
+            MessageBody: JSON.stringify(payload)
+        }));
+    } catch (err) {
+        console.error(`Cannot schedule aggregation`, payload, err);
+    }
+}
+
 export const aggregateMinutely = async function (event, context) {
 
     for (const region of config.regions) {
-        try {
-            await client.send(new SendMessageCommand({
-                QueueUrl: process.env.AGGREGATE_QUEUE_URL,
-                MessageBody: JSON.stringify({ type: "instant", region: region.id })
-            }));
-        } catch (err) {
-            console.error("Cannot schedule instant aggregation", region.id, err);
-        }
+
+        await scheduleAggregation({ type: "instant", region: region.id });
 
         for (const endpoint of config.endpoints) {
-            try {
-                await client.send(new SendMessageCommand({
-                    QueueUrl: process.env.AGGREGATE_QUEUE_URL,
-                    MessageBody: JSON.stringify({ type: "detailed", region: region.id, endpoint: endpoint.id })
-                }));
-            } catch (err) {
-                console.error("Cannot schedule detailed aggregation", region.id, endpoint, err);
-            }
 
-            try {
-                await client.send(new SendMessageCommand({
-                    QueueUrl: process.env.AGGREGATE_QUEUE_URL,
-                    MessageBody: JSON.stringify({ type: "instant-endpoint", region: region.id, endpoint: endpoint.id })
-                }));
-            } catch (err) {
-                console.error("Cannot schedule instant-endpoint aggregation", region.id, endpoint, err);
-            }
+            await scheduleAggregation({ type: "detailed", region: region.id, endpoint: endpoint.id });
+            await scheduleAggregation({ type: "instant-endpoint", region: region.id, endpoint: endpoint.id });
+            await scheduleAggregation({ type: "recent-issues", region: region.id, endpoint: endpoint.id });
         }
     }
 }
