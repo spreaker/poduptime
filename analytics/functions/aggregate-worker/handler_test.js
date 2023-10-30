@@ -9,6 +9,22 @@ import { formatISO, startOfMinute, subMinutes, eachMinuteOfInterval } from 'date
 const { randomUUID } = await import('node:crypto');
 import { use } from "../../common/fixtures.js";
 
+const assertApiResponse = function (s3, key, expected) {
+
+    const calls = s3.calls(PutObjectCommand);
+    assert.equal(calls.length, 1);
+    assert.deepStrictEqual(calls[0].args[0].input.Key, key);
+
+    expected = {
+        timestamp: /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z)/, // is an ISO 8601 timestamp
+        ...expected,
+    }
+
+    const actual = JSON.parse(calls[0].args[0].input.Body);
+    assert.match(actual.timestamp, expected.timestamp);
+    assert.deepStrictEqual(actual.data, expected.data);
+}
+
 describe('analytics - aggregateWorker', () => {
 
     const db = use('db');
@@ -51,25 +67,23 @@ describe('analytics - aggregateWorker', () => {
 
             await aggregateWorker({ Records: [{ body: JSON.stringify({ type: "instant", region: "antartica-1" }) }] });
 
-            const s3calls = s3.calls(PutObjectCommand);
-            assert.equal(s3calls.length, 1);
-            assert.deepStrictEqual(s3calls[0].args[0].input.Body, JSON.stringify(backfillInstant([
-                { endpoint: config.endpoints[0].id, available: 1 }
-            ])));
-            assert.deepStrictEqual(s3calls[0].args[0].input.Key, "api/instant-antartica-1.json");
+            assertApiResponse(s3, "api/instant-antartica-1.json", {
+                data: backfillInstant([
+                    { endpoint: config.endpoints[0].id, available: 1 }
+                ])
+            });
         });
 
         it('should run the query for global region and upload to S3', async (t) => {
 
             await aggregateWorker({ Records: [{ body: JSON.stringify({ type: "instant", region: "global" }) }] });
 
-            const s3calls = s3.calls(PutObjectCommand);
-            assert.equal(s3calls.length, 1);
-            assert.deepStrictEqual(s3calls[0].args[0].input.Body, JSON.stringify(backfillInstant([
-                { endpoint: config.endpoints[0].id, available: 1 },
-                { endpoint: config.endpoints[1].id, available: 0 }
-            ])));
-            assert.deepStrictEqual(s3calls[0].args[0].input.Key, "api/instant-global.json");
+            assertApiResponse(s3, "api/instant-global.json", {
+                data: backfillInstant([
+                    { endpoint: config.endpoints[0].id, available: 1 },
+                    { endpoint: config.endpoints[1].id, available: 0 }
+                ])
+            });
         });
 
         it('should throw on S3 errors', async (t) => {
@@ -125,26 +139,24 @@ describe('analytics - aggregateWorker', () => {
 
             await aggregateWorker({ Records: [{ body: JSON.stringify({ type: "instant-endpoint", endpoint: endpoint, region: "antartica-1" }) }] });
 
-            const s3calls = s3.calls(PutObjectCommand);
-            assert.equal(s3calls.length, 1);
-            assert.deepStrictEqual(s3calls[0].args[0].input.Body, JSON.stringify(backfillInstantEndpoint([
-                { type: config.endpoints[0].services[0].type, available: 1 },
-                { type: config.endpoints[0].services[0].type, available: null }
-            ])));
-            assert.deepStrictEqual(s3calls[0].args[0].input.Key, `api/instant-${endpoint}-antartica-1.json`);
+            assertApiResponse(s3, `api/instant-${endpoint}-antartica-1.json`, {
+                data: backfillInstantEndpoint([
+                    { type: config.endpoints[0].services[0].type, available: 1 },
+                    { type: config.endpoints[0].services[0].type, available: null }
+                ])
+            });
         });
 
         it('should run the query for global region and upload to S3', async (t) => {
 
             await aggregateWorker({ Records: [{ body: JSON.stringify({ type: "instant-endpoint", endpoint: endpoint, region: "global" }) }] });
 
-            const s3calls = s3.calls(PutObjectCommand);
-            assert.equal(s3calls.length, 1);
-            assert.deepStrictEqual(s3calls[0].args[0].input.Body, JSON.stringify(backfillInstantEndpoint([
-                { type: config.endpoints[0].services[0].type, available: 1 },
-                { type: config.endpoints[0].services[1].type, available: 0 }
-            ])));
-            assert.deepStrictEqual(s3calls[0].args[0].input.Key, `api/instant-${endpoint}-global.json`);
+            assertApiResponse(s3, `api/instant-${endpoint}-global.json`, {
+                data: backfillInstantEndpoint([
+                    { type: config.endpoints[0].services[0].type, available: 1 },
+                    { type: config.endpoints[0].services[1].type, available: 0 }
+                ])
+            });
         });
 
         it('should throw on S3 errors', async (t) => {
@@ -211,29 +223,26 @@ describe('analytics - aggregateWorker', () => {
 
             await aggregateWorker({ Records: [{ body: JSON.stringify({ type: "detailed", endpoint: "service", region: "antartica-1" }) }] });
 
-            const s3calls = s3.calls(PutObjectCommand);
-            assert.equal(s3calls.length, 1);
-            assert.deepStrictEqual(s3calls[0].args[0].input.Body, JSON.stringify(backfillDetailed([
-                { timestamp: prev2m, available: 1 },
-                { timestamp: prev1m, available: 1 },
-                { timestamp: now, available: 0 }
-            ])));
-            assert.deepStrictEqual(s3calls[0].args[0].input.Key, "api/detailed-service-antartica-1.json");
+            assertApiResponse(s3, "api/detailed-service-antartica-1.json", {
+                data: backfillDetailed([
+                    { timestamp: prev2m, available: 1 },
+                    { timestamp: prev1m, available: 1 },
+                    { timestamp: now, available: 0 }
+                ])
+            });
         });
 
         it('should run the query for global region and upload to S3', async (t) => {
 
             await aggregateWorker({ Records: [{ body: JSON.stringify({ type: "detailed", endpoint: "service", region: "global" }) }] });
 
-            const s3calls = s3.calls(PutObjectCommand);
-
-            assert.equal(s3calls.length, 1);
-            assert.deepStrictEqual(s3calls[0].args[0].input.Body, JSON.stringify(backfillDetailed([
-                { timestamp: prev2m, available: 1 },
-                { timestamp: prev1m, available: 1 },
-                { timestamp: now, available: 0 }
-            ])));
-            assert.deepStrictEqual(s3calls[0].args[0].input.Key, "api/detailed-service-global.json");
+            assertApiResponse(s3, "api/detailed-service-global.json", {
+                data: backfillDetailed([
+                    { timestamp: prev2m, available: 1 },
+                    { timestamp: prev1m, available: 1 },
+                    { timestamp: now, available: 0 }
+                ])
+            });
         });
 
         it('should throw on S3 errors', async (t) => {
@@ -274,25 +283,23 @@ describe('analytics - aggregateWorker', () => {
 
             await aggregateWorker({ Records: [{ body: JSON.stringify({ type: "recent-issues", endpoint: "service", region: "global" }) }] });
 
-            const s3calls = s3.calls(PutObjectCommand);
-            assert.equal(s3calls.length, 1);
-            assert.deepStrictEqual(s3calls[0].args[0].input.Body, JSON.stringify([
-                { foo: 'bar1' },
-                { foo: 'bar2' }
-            ]));
-            assert.deepStrictEqual(s3calls[0].args[0].input.Key, "api/recent-issues-service-global.json");
+            assertApiResponse(s3, "api/recent-issues-service-global.json", {
+                data: [
+                    { foo: 'bar1' },
+                    { foo: 'bar2' }
+                ]
+            });
         });
 
         it('should run the query for specific region and upload to S3', async (t) => {
 
             await aggregateWorker({ Records: [{ body: JSON.stringify({ type: "recent-issues", endpoint: "service", region: "antartica-1" }) }] });
 
-            const s3calls = s3.calls(PutObjectCommand);
-            assert.equal(s3calls.length, 1);
-            assert.deepStrictEqual(s3calls[0].args[0].input.Body, JSON.stringify([
-                { foo: 'bar1' }
-            ]));
-            assert.deepStrictEqual(s3calls[0].args[0].input.Key, "api/recent-issues-service-antartica-1.json");
+            assertApiResponse(s3, "api/recent-issues-service-antartica-1.json", {
+                data: [
+                    { foo: 'bar1' }
+                ]
+            });
         });
 
         it('should throw on S3 errors', async (t) => {

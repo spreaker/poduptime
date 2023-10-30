@@ -42,7 +42,7 @@ const aggregateInstant = async function (aggregation) {
     await s3Client.send(new PutObjectCommand({
         Bucket: process.env.WEBSITE_BUCKET,
         Key: `api/instant-${region}.json`,
-        Body: JSON.stringify(result),
+        Body: JSON.stringify({ timestamp: formatISO(new Date()), data: result }),
         ContentType: "application/json"
     }));
 }
@@ -90,7 +90,7 @@ const aggregateInstantEndpoint = async function (aggregation) {
     await s3Client.send(new PutObjectCommand({
         Bucket: process.env.WEBSITE_BUCKET,
         Key: `api/instant-${endpoint}-${region}.json`,
-        Body: JSON.stringify(result),
+        Body: JSON.stringify({ timestamp: formatISO(new Date()), data: result }),
         ContentType: "application/json"
     }));
 }
@@ -150,7 +150,7 @@ const aggregateDetailed = async function (aggregation) {
     await s3Client.send(new PutObjectCommand({
         Bucket: process.env.WEBSITE_BUCKET,
         Key: `api/detailed-${endpoint}-${region}.json`,
-        Body: JSON.stringify(result),
+        Body: JSON.stringify({ timestamp: formatISO(new Date()), data: result }),
         ContentType: "application/json"
     }));
 }
@@ -179,7 +179,7 @@ const aggreateRecentIssues = async function (aggregation) {
     await s3Client.send(new PutObjectCommand({
         Bucket: process.env.WEBSITE_BUCKET,
         Key: `api/recent-issues-${endpoint}-${region}.json`,
-        Body: JSON.stringify(result),
+        Body: JSON.stringify({ timestamp: formatISO(new Date()), data: result }),
         ContentType: "application/json"
     }));
 }
