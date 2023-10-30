@@ -147,6 +147,18 @@ functions:
     events:
       - schedule: rate(1 minute)
 
+  aggregateDaily:
+    name: ${self:custom.appPrefix}-aggregateDaily
+    handler: functions/aggregate-daily/handler.aggregateDaily
+    timeout: 55
+    environment:
+      AGGREGATE_QUEUE_URL:
+        Fn::GetAtt:
+          - AggregateQueue
+          - QueueUrl
+    events:
+      - schedule: cron(5 0 * * ? *)
+
   aggregateWorker:
     name: ${self:custom.appPrefix}-aggregateWorker
     handler: functions/aggregate-worker/handler.aggregateWorker
