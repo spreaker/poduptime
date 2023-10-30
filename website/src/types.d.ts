@@ -1,3 +1,8 @@
+export type ApiResponse<Type> = {
+  timestamp: string
+  data: Type
+}
+
 export type Instant = {
   endpoint: string
   available: number | null | undefined
