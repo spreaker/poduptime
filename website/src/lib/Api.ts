@@ -1,11 +1,11 @@
-import { Detail, Instant, Issue, ServiceInstant } from '../types'
+import { ApiResponse, Detail, Instant, Issue, ServiceInstant } from '../types'
 import { API_BASE_URL } from './Constants'
 
 export async function fetchInstantData(region: string): Promise<Instant[]> {
   return await fetch(`${API_BASE_URL}/api/instant-${region}.json`)
-    .then((response) => response.json() as Promise<Instant[]>)
-    .then((data) => {
-      return data
+    .then((response) => response.json() as Promise<ApiResponse<Instant[]>>)
+    .then((response) => {
+      return response.data
     })
     .catch(() => {
       return []
@@ -17,9 +17,9 @@ export async function fetchServiceInstantsData(
   region: string
 ): Promise<ServiceInstant[]> {
   return await fetch(`${API_BASE_URL}/api/instant-${endpoint}-${region}.json`)
-    .then((response) => response.json() as Promise<ServiceInstant[]>)
-    .then((data) => {
-      return data
+    .then((response) => response.json() as Promise<ApiResponse<ServiceInstant[]>>)
+    .then((response) => {
+      return response.data
     })
     .catch(() => {
       return []
@@ -28,9 +28,9 @@ export async function fetchServiceInstantsData(
 
 export async function fetchDetailedData(endpoint: string, region: string): Promise<Detail[]> {
   return await fetch(`${API_BASE_URL}/api/detailed-${endpoint}-${region}.json`)
-    .then((response) => response.json() as Promise<Detail[]>)
-    .then((data) => {
-      return data
+    .then((response) => response.json() as Promise<ApiResponse<Detail[]>>)
+    .then((response) => {
+      return response.data
     })
     .catch(() => {
       return []
@@ -39,9 +39,9 @@ export async function fetchDetailedData(endpoint: string, region: string): Promi
 
 export async function fetchRecentIssues(endpoint: string, region: string): Promise<Issue[]> {
   return await fetch(`${API_BASE_URL}/api/recent-issues-${endpoint}-${region}.json`)
-    .then((response) => response.json() as Promise<Issue[]>)
-    .then((data) => {
-      return data
+    .then((response) => response.json() as Promise<ApiResponse<Issue[]>>)
+    .then((response) => {
+      return response.data
     })
     .catch(() => {
       return []
