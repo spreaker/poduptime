@@ -136,7 +136,7 @@ function renderIssue(issue: Issue) {
           timeZone: 'UTC'
         }).format(new Date(issue.timestamp))} | ${issue.type} | ${issue.region}
 			</div>
-			<pre id="issue-detail-${issue.id}" class="text-xs hidden pt-1 overflow-y-scroll">${JSON.stringify(
+			<pre id="issue-detail-${issue.id}" class="text-xs hidden pt-1 overflow-x-scroll">${JSON.stringify(
         issue,
         null,
         2
