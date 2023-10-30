@@ -5,7 +5,7 @@ import { aggregateWorker } from "./handler.js"
 import { throwsAsync } from '../../common/assert.js'
 import config from "../../conf/config.js";
 import { unionBy, sortBy } from "lodash-es";
-import { formatISO, startOfMinute, subMinutes, eachMinuteOfInterval } from 'date-fns';
+import { formatISO, startOfMinute, subMinutes, eachMinuteOfInterval, eachDayOfInterval, subDays, startOfDay } from 'date-fns';
 const { randomUUID } = await import('node:crypto');
 import { use } from "../../common/fixtures.js";
 
@@ -310,6 +310,98 @@ describe('analytics - aggregateWorker', () => {
                 Records: [{
                     body: JSON.stringify({
                         type: "recent-issues", region: "antartica", endpoint: "service"
+                    })
+                }]
+            }), null);
+        });
+    });
+
+    describe('daily-endpoint', () => {
+
+        const todayDate = startOfDay(new Date());
+        const today = formatISO(todayDate);
+        const yesterdayDate = subDays(todayDate, 1);
+        const yesterday = formatISO(yesterdayDate);
+        const twoDaysAgo = formatISO(subDays(todayDate, 2));
+        const threeDaysAgo = formatISO(subDays(todayDate, 3));
+        const intervalDays = eachDayOfInterval({ start: subDays(yesterdayDate, 29), end: yesterdayDate });
+
+        const measurements = [
+            {
+                id: randomUUID(), timestamp: threeDaysAgo, endpoint: "service",
+                type: "enclosure", region: "antartica-1", available: 1, duration: 100
+            },
+            {
+                id: randomUUID(), timestamp: threeDaysAgo, endpoint: "service",
+                type: "enclosure", region: "antartica-2", available: 1, duration: 100
+            },
+            {
+                id: randomUUID(), timestamp: twoDaysAgo, endpoint: "service",
+                type: "enclosure", region: "antartica-1", available: 0, duration: 100
+            },
+            {
+                id: randomUUID(), timestamp: yesterday, endpoint: "service",
+                type: "enclosure", region: "antartica-1", available: 0, duration: 100
+            },
+            {
+                id: randomUUID(), timestamp: today, endpoint: "service",
+                type: "enclosure", region: "antartica-1", available: 0, duration: 100
+            }
+        ];
+
+        const backfillDaily = (rows) => {
+            return sortBy(unionBy(rows, intervalDays.map((day) => {
+                return { timestamp: formatISO(day), available: null }
+            }), 'timestamp'), 'timestamp');
+        }
+
+        beforeEach(async () => {
+
+            for (const measurement of measurements) {
+                await db.query(`
+                INSERT INTO measurements (id, timestamp, endpoint, type, region, available, duration)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+            `, [
+                    measurement.id, measurement.timestamp, measurement.endpoint,
+                    measurement.type, measurement.region, measurement.available, measurement.duration
+                ]);
+            }
+        });
+
+        it('should run the query for specific region and upload to S3', async (t) => {
+
+            await aggregateWorker({ Records: [{ body: JSON.stringify({ type: "daily-endpoint", endpoint: "service", region: "antartica-1" }) }] });
+
+            assertApiResponse(s3, "api/daily-service-antartica-1.json", {
+                data: backfillDaily([
+                    { timestamp: threeDaysAgo, available: 1 },
+                    { timestamp: twoDaysAgo, available: 1 },
+                    { timestamp: yesterday, available: 0 }
+                ])
+            });
+        });
+
+        it('should run the query for global region and upload to S3', async (t) => {
+
+            await aggregateWorker({ Records: [{ body: JSON.stringify({ type: "daily-endpoint", endpoint: "service", region: "global" }) }] });
+
+            assertApiResponse(s3, "api/daily-service-global.json", {
+                data: backfillDaily([
+                    { timestamp: threeDaysAgo, available: 1 },
+                    { timestamp: twoDaysAgo, available: 1 },
+                    { timestamp: yesterday, available: 0 }
+                ])
+            });
+        });
+
+        it('should throw on S3 errors', async (t) => {
+
+            s3.rejects('simulated error');
+
+            await throwsAsync(aggregateWorker({
+                Records: [{
+                    body: JSON.stringify({
+                        type: "daily-endpoint", region: "antartica", endpoint: "service"
                     })
                 }]
             }), null);
