@@ -138,6 +138,7 @@ functions:
   aggregateMinutely:
     name: ${self:custom.appPrefix}-aggregateMinutely
     handler: functions/aggregate-minutely/handler.aggregateMinutely
+    timeout: 55
     environment:
       AGGREGATE_QUEUE_URL:
         Fn::GetAtt:
