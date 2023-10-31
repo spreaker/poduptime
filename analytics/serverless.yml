@@ -128,6 +128,7 @@ functions:
   archiveDatabase:
     name: ${self:custom.appPrefix}-archiveDatabase
     handler: functions/archive-database/handler.archiveDatabase
+    reservedConcurrency: 20
     events:
       - eventBridge:
           eventBus: !Ref MainEventBus
@@ -163,6 +164,7 @@ functions:
     name: ${self:custom.appPrefix}-aggregateWorker
     handler: functions/aggregate-worker/handler.aggregateWorker
     timeout: 55
+    reservedConcurrency: 30
     environment:
       WEBSITE_BUCKET: ${self:custom.websiteBucket}
     events:

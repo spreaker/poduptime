@@ -110,16 +110,6 @@ Please note that deployment is managed outside of this repository to safeguard S
 
 This approach ensures that sensitive information and configurations are kept separate from the public repository while still allowing for successful deployments when provided with the required parameters.
 
-## Missing Features
-
-Here are some missing features that we are actively working on:
-
-1. **Daily View**: We are in the process of implementing an aggregated daily view over the last 30 days for each monitored platform.
-
-2. **Recent Issues**: We are also working on providing a list with detailed debug information for the most recent 10 measurements where the service was tracked as unavailable.
-
-We appreciate your patience as we continue to enhance and improve our service. If you have any additional suggestions or feedback, please feel free to let us know.
-
 ## Contributing
 
 Please note that the project is currently in its early stages, and we are actively working on determining design choices to complete the minimum set of features. As a result, at this moment, we are not ready to accept Pull Requests from external contributors.
