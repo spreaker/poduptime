@@ -25,7 +25,7 @@ const EXAMPLE_DETAILED_SERVICE = {
   data: [
     { timestamp: '2023-10-30T15:35:00Z', available: 1 },
     { timestamp: '2023-10-30T15:36:00Z', available: 1 },
-    { timestamp: '2023-10-30T15:37:00Z', available: 1 },
+    { timestamp: '2023-10-30T15:37:00Z', available: null },
     { timestamp: '2023-10-30T15:38:00Z', available: 1 },
     '...'
   ]
@@ -35,8 +35,39 @@ const EXAMPLE_DAILY_SERVICE = {
   timestamp: '2023-10-31T10:05:46Z',
   data: [
     { timestamp: '2023-10-28T00:00:00Z', available: 1 },
-    { timestamp: '2023-10-29T00:00:00Z', available: 1 },
+    { timestamp: '2023-10-29T00:00:00Z', available: null },
     { timestamp: '2023-10-30T00:00:00Z', available: 1 },
+    '...'
+  ]
+}
+
+const EXAMPLE_RECENT_ISSUES = {
+  timestamp: '2023-10-31T16:20:18Z',
+  data: [
+    {
+      id: '32f924d2-94e3-4816-9b9d-629213e48267',
+      timestamp: '2023-10-31T15:23:16Z',
+      region: 'eu-south-1',
+      endpoint: 'dummy-hosting',
+      url: 'https://httpbin.org/status/200',
+      type: 'enclosure',
+      status: 502,
+      headers: {
+        server: 'awselb/2.0',
+        date: 'Tue, 31 Oct 2023 15:23:16 GMT',
+        'content-type': 'text/html',
+        'content-length': '122',
+        connection: 'close'
+      },
+      error: {
+        name: 'UnexpectedHttpStatusError',
+        code: 'ERROR_UNEXPECTED_HTTP_STATUS',
+        message: 'Unexpected HTTP Status: 502'
+      },
+      traversal: ['https://httpbin.org/status/200'],
+      duration: 588.921607,
+      available: 0
+    },
     '...'
   ]
 }
@@ -72,7 +103,7 @@ const EXAMPLE_DAILY_SERVICE = {
   </h2>
   <p>
     The Instant API is a simple API that returns a list of availability percentages for all the
-    podcasting services in the last 30 minutes.
+    monitored endpoints in the last 30 minutes.
   </p>
   <h3 class="pt-4 text-xl font-bold">URI structure:</h3>
   <p>
@@ -111,7 +142,7 @@ const EXAMPLE_DAILY_SERVICE = {
         <td class="border border-dotted p-4">endpoint</td>
         <td class="border border-dotted p-4">String</td>
         <td class="border border-dotted p-4">No</td>
-        <td class="border border-dotted p-4">The name of the podcasting service.</td>
+        <td class="border border-dotted p-4">The name of the monitored endpoint.</td>
       </tr>
       <tr>
         <td class="border border-dotted p-4">available</td>
@@ -127,15 +158,15 @@ const EXAMPLE_DAILY_SERVICE = {
   <h3 class="pb-2 pt-4 text-xl font-bold">Example Response:</h3>
   <pre class="text-xs text-pink-100"><code>{JSON.stringify(EXAMPLE_INSTANT, null, 2)}</code></pre>
 
-  {/* SERVICE INSTANT API */}
+  {/* ENDPOINT INSTANT API */}
   <h2
     class="mb-4 mt-6 border-b-2 border-dotted border-pink-100 pb-2 text-2xl font-bold text-pink-100"
   >
-    Service Instant API
+    Endpoint Instant API
   </h2>
   <p>
-    The service instance API is a simple API that returns the list of all the monitored urls
-    availability percentage for a given podcasting service in the last 30 minutes.
+    The endpoint instance API is a simple API that returns the list of all the monitored urls
+    availability percentage for a given monitored endpoint in the last 30 minutes.
   </p>
   <h3 class="pt-4 text-xl font-bold">URI structure:</h3>
   <p>
@@ -200,15 +231,15 @@ const EXAMPLE_DAILY_SERVICE = {
   <pre
     class="text-xs text-pink-100"><code>{JSON.stringify(EXAMPLE_INSTANT_SERVICE, null, 2)}</code></pre>
 
-  {/* SERVICE DETAILED API */}
+  {/* ENDPOINT DETAILED API */}
   <h2
     class="mb-4 mt-6 border-b-2 border-dotted border-pink-100 pb-2 text-2xl font-bold text-pink-100"
   >
-    Service Detailed API
+    Endpoint Detailed API
   </h2>
   <p>
-    The service detailed API is a simple API that returns a list of 1440 data points (one for each
-    minute of the last 24 hours) for a given podcasting service. The API always returns the data in
+    The endpoint detailed API is a simple API that returns a list of 1440 data points (one for each
+    minute of the last 24 hours) for a given monitored endpoint. The API always returns the data in
     the same order, from the oldest to the most recent, backfilling the missing data with null
     values.
   </p>
@@ -270,15 +301,15 @@ const EXAMPLE_DAILY_SERVICE = {
   <pre
     class="text-xs text-pink-100"><code>{JSON.stringify(EXAMPLE_DETAILED_SERVICE, null, 2)}</code></pre>
 
-  {/* SERVICE DAILY API */}
+  {/* ENDPOINT DAILY API */}
   <h2
     class="mb-4 mt-6 border-b-2 border-dotted border-pink-100 pb-2 text-2xl font-bold text-pink-100"
   >
-    Service Daily API
+    Endpoint Daily API
   </h2>
   <p>
-    The service daily API is a simple API that returns a list of 30 data points (one for each day of
-    the last 30 days) for a given podcasting service. The API always returns the data in the same
+    The endpoint daily API is a simple API that returns a list of 30 data points (one for each day
+    of the last 30 days) for a given monitored endpoint. The API always returns the data in the same
     order, from the oldest to the most recent, backfilling the missing data with null values.
   </p>
   <h3 class="pt-4 text-xl font-bold">URI structure:</h3>
@@ -338,4 +369,190 @@ const EXAMPLE_DAILY_SERVICE = {
   <h3 class="pb-2 pt-4 text-xl font-bold">Example Response:</h3>
   <pre
     class="text-xs text-pink-100"><code>{JSON.stringify(EXAMPLE_DAILY_SERVICE, null, 2)}</code></pre>
+  {/* RECENT ISSUES API */}
+  <h2
+    class="mb-4 mt-6 border-b-2 border-dotted border-pink-100 pb-2 text-2xl font-bold text-pink-100"
+  >
+    Recent Issues API
+  </h2>
+  <p>
+    The recent issues API is a simple API that returns a the list of the full events for the last 10
+    issues recorded by the monitoring system.
+  </p>
+  <h3 class="pt-4 text-xl font-bold">URI structure:</h3>
+  <p>
+    {API_BASE_URL}/api/recent-issues-<code class="rounded border px-2 py-1 text-xs">endpoint</code
+    >-<code class="rounded border px-2 py-1 text-xs">region</code>.json
+  </p>
+  <h3 class="pt-4 text-xl font-bold">Example URIs:</h3>
+  <ul class="list-outside list-disc pl-4">
+    {
+      REGIONS.map((region) => {
+        return (
+          <li>
+            <a
+              class="text-sm underline"
+              href={`${API_BASE_URL}/api/daily-${HOSTING[0].id}-${region.id}.json`}
+              target="_blank"
+            >
+              {API_BASE_URL}/api/recent-issues-{HOSTING[0].id}-{region.id}.json
+            </a>
+          </li>
+        )
+      })
+    }
+  </ul>
+  <h3 class="pt-4 text-xl font-bold">Data:</h3>
+  <div class="w-full overflow-x-scroll">
+    <table>
+      <thead class="text-sm">
+        <tr>
+          <td class="px-4 py-2 font-semibold">Field</td>
+          <td class="px-4 py-2 font-semibold">Type</td>
+          <td class="px-4 py-2 font-semibold">Nullable</td>
+          <td class="px-4 py-2 font-semibold">Description</td>
+        </tr>
+      </thead>
+      <tbody class="text-sm">
+        <tr>
+          <td class="border border-dotted p-4">id</td>
+          <td class="border border-dotted p-4">String</td>
+          <td class="border border-dotted p-4">No</td>
+          <td class="border border-dotted p-4"
+            >A guid that uniquely identifies the request that caused the issue. The User-Agent being
+            used to perform the request by our monitoring service is: <code
+              >Mozilla/5.0 (compatible; PodUptimeBot/1.0; +https://poduptime.com; rid:XXX)</code
+            >. The rid parameter in the User-Agent matches the id of the issue.
+          </td>
+        </tr>
+        <tr>
+          <td class="border border-dotted p-4">timestamp</td>
+          <td class="border border-dotted p-4">String</td>
+          <td class="border border-dotted p-4">No</td>
+          <td class="border border-dotted p-4"
+            >The timestamp of the data point. The timestamp is in ISO 8601 format.
+          </td>
+        </tr>
+        <tr>
+          <td class="border border-dotted p-4">region</td>
+          <td class="border border-dotted p-4">String</td>
+          <td class="border border-dotted p-4">No</td>
+          <td class="border border-dotted p-4"
+            >The region where the issue was detected. The region is one of those:
+            <ul class="list-inside list-disc pl-2 pt-1">
+              {
+                REGIONS.map((region) => {
+                  return (
+                    <li>
+                      <code>{region.id}</code>
+                    </li>
+                  )
+                })
+              }
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td class="border border-dotted p-4">endpoint</td>
+          <td class="border border-dotted p-4">String</td>
+          <td class="border border-dotted p-4">No</td>
+          <td class="border border-dotted p-4"
+            >The name of the monitored endpoint where the issue was detected.
+          </td>
+        </tr>
+        <tr>
+          <td class="border border-dotted p-4">url</td>
+          <td class="border border-dotted p-4">String</td>
+          <td class="border border-dotted p-4">No</td>
+          <td class="border border-dotted p-4">The url where the issue was detected.</td>
+        </tr>
+        <tr>
+          <td class="border border-dotted p-4">type</td>
+          <td class="border border-dotted p-4">String</td>
+          <td class="border border-dotted p-4">No</td>
+          <td class="border border-dotted p-4">
+            The type of the monitored url. We now support those types:
+            <ul class="list-inside list-disc pl-2 pt-1">
+              <li><code>enclosure</code></li>
+              <li><code>feed</code></li>
+              <li><code>prefix</code></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td class="border border-dotted p-4">status</td>
+          <td class="border border-dotted p-4">Number</td>
+          <td class="border border-dotted p-4">No</td>
+          <td class="border border-dotted p-4">The HTTP status code returned by the url.</td>
+        </tr>
+        <tr>
+          <td class="border border-dotted p-4">headers</td>
+          <td class="border border-dotted p-4">Object</td>
+          <td class="border border-dotted p-4">No</td>
+          <td class="border border-dotted p-4">
+            The HTTP headers returned by the url. The object is a key-value pair where the key is
+            the header name and the value is the header value.
+          </td>
+        </tr>
+        <tr>
+          <td class="border border-dotted p-4">traversal</td>
+          <td class="border border-dotted p-4">Array</td>
+          <td class="border border-dotted p-4">No</td>
+          <td class="border border-dotted p-4">
+            The list of urls that were traversed to reach the final url. The list is ordered from
+            the first url to the last url.
+          </td>
+        </tr>
+        <tr>
+          <td class="border border-dotted p-4">error</td>
+          <td class="border border-dotted p-4">Object</td>
+          <td class="border border-dotted p-4">No</td>
+          <td class="border border-dotted p-4">
+            The error object contains the error details. The object has the following structure:
+            <table>
+              <thead class="text-xs">
+                <tr>
+                  <td class="px-4 py-2 font-semibold">Field</td>
+                  <td class="px-4 py-2 font-semibold">Type</td>
+                  <td class="px-4 py-2 font-semibold">Nullable</td>
+                  <td class="px-4 py-2 font-semibold">Description</td>
+                </tr>
+              </thead>
+              <tbody class="text-xs">
+                <tr>
+                  <td class="border border-dotted p-4">name</td>
+                  <td class="border border-dotted p-4">String</td>
+                  <td class="border border-dotted p-4">No</td>
+                  <td class="border border-dotted p-4">The name of the error.</td>
+                </tr>
+                <tr>
+                  <td class="border border-dotted p-4">code</td>
+                  <td class="border border-dotted p-4">String</td>
+                  <td class="border border-dotted p-4">No</td>
+                  <td class="border border-dotted p-4">The code of the error.</td>
+                </tr>
+                <tr>
+                  <td class="border border-dotted p-4">message</td>
+                  <td class="border border-dotted p-4">String</td>
+                  <td class="border border-dotted p-4">No</td>
+                  <td class="border border-dotted p-4">The message of the error.</td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td class="border border-dotted p-4">available</td>
+          <td class="border border-dotted p-4">Number</td>
+          <td class="border border-dotted p-4">Yes</td>
+          <td class="border border-dotted p-4"
+            >In this case since we are dealing with an issue the availavility is always 0.</td
+          >
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <h3 class="pb-2 pt-4 text-xl font-bold">Example Response:</h3>
+  <pre
+    class="text-xs text-pink-100"><code>{JSON.stringify(EXAMPLE_RECENT_ISSUES, null, 2)}</code></pre>
 </Layout>
