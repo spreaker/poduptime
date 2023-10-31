@@ -16,6 +16,19 @@ const createAgent = function (options) {
     return new Agent(options);
 }
 
+const serializeError = function (error) {
+
+    if (!error) {
+        return null;
+    }
+
+    return {
+        name: error.name,
+        code: error.code,
+        message: error.message
+    }
+}
+
 const performCheck = async function (service, agentFactory) {
 
     const result = {
@@ -48,7 +61,7 @@ const performCheck = async function (service, agentFactory) {
         connect: { timeout: 5000 },
     });
 
-    let statusCode = 0, headers = null, context = null;
+    let statusCode = 0, headers = null, context = null, error = null;
 
     const start = hrtime.bigint();
 
@@ -59,6 +72,7 @@ const performCheck = async function (service, agentFactory) {
             headers: { "User-Agent": `Mozilla/5.0 (compatible; PodUptimeBot/1.0; +https://poduptime.com; rid:${result.id})` },
         }));
     } catch (e) {
+        error = e;
         console.error("Check endpoint error", result, e);
     }
 
@@ -90,7 +104,8 @@ const performCheck = async function (service, agentFactory) {
         duration: durationMs,
         headers: headers,
         traversal: traversal,
-        available: available ? 1 : 0
+        available: available ? 1 : 0,
+        error: serializeError(error)
     };
 }
 

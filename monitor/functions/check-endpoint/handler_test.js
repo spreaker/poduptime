@@ -17,6 +17,7 @@ const assertEventBridgePayload = function (events, expected) {
         timestamp: /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z)/, // is an ISO 8601 timestamp
         duration: /\d+.\d+/, // is a floating point
         endpoint: "test",
+        error: null,
         ...expected,
     }
 
@@ -29,6 +30,7 @@ const assertEventBridgePayload = function (events, expected) {
     assert.deepStrictEqual(actual.traversal, expected.traversal);
     assert.equal(actual.available, expected.available);
     assert.equal(actual.type, expected.type);
+    assert.deepStrictEqual(actual.error, expected.error);
 }
 
 describe('monitor - checkEndpoint', () => {
@@ -152,11 +154,18 @@ describe('monitor - checkEndpoint', () => {
             url: "https://poduptime.com/test.mp3"
         };
 
+        const error = new Error("Mock Error message");
+        error.code = "MOCK_ERROR";
+
         await checkEndpoint({ Records: [{ body: JSON.stringify(service) }] }, {
             agentFactory: (options) => {
 
                 const mockAgent = new MockAgent(options);
                 mockAgent.disableNetConnect();
+
+                mockAgent.get("https://poduptime.com")
+                    .intercept({ path: "test.mp3", method: 'HEAD' })
+                    .replyWithError(error);
 
                 return mockAgent;
             }
@@ -170,7 +179,8 @@ describe('monitor - checkEndpoint', () => {
             headers: null,
             traversal: ["https://poduptime.com/test.mp3"],
             available: 0,
-            type: "enclosure"
+            type: "enclosure",
+            error: { code: error.code, message: error.message, name: error.name }
         });
     });
 
