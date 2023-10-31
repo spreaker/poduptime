@@ -1,7 +1,7 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import config from "../../conf/config.js";
 import { find, unionBy, sortBy } from "lodash-es";
-import { formatISO, parseISO, startOfMinute, subMinutes, eachMinuteOfInterval, differenceInMinutes } from 'date-fns';
+import { formatISO, parseISO, startOfMinute, subMinutes, eachMinuteOfInterval, eachDayOfInterval, differenceInMinutes, startOfDay, subDays } from 'date-fns';
 import { query } from "../../common/database.js";
 
 const s3Client = new S3Client({});
@@ -184,6 +184,63 @@ const aggreateRecentIssues = async function (aggregation) {
     }));
 }
 
+const aggreateDailyEndpoint = async function (aggregation) {
+
+    const region = aggregation.region;
+    const endpoint = aggregation.endpoint;
+
+    let rows = "global" === region ?
+        (await query(`
+        WITH windowed_availability AS (
+            SELECT timestamp, type, region, available,
+            LAG(available, 1, 0) OVER (PARTITION BY type, region ORDER BY timestamp) AS prevAvailable
+            FROM measurements
+            WHERE timestamp >= date_trunc('day', CURRENT_TIMESTAMP) - interval '30 days'
+            AND timestamp < date_trunc('day', CURRENT_TIMESTAMP)
+            AND endpoint = $1
+        )
+        SELECT date_trunc('day', timestamp) as timestamp, AVG(greatest(available, prevAvailable)) as available
+        FROM windowed_availability
+        GROUP BY 1 ORDER BY 1
+    `, [endpoint])).rows :
+        (await query(`
+        WITH windowed_availability AS (
+            SELECT timestamp, type, available,
+            LAG(available, 1, 0) OVER (PARTITION BY type ORDER BY timestamp) AS prevAvailable
+            FROM measurements
+            WHERE timestamp >= date_trunc('day', CURRENT_TIMESTAMP) - interval '30 days'
+            AND timestamp < date_trunc('day', CURRENT_TIMESTAMP)
+            AND endpoint = $1 AND region = $2
+        )
+        SELECT date_trunc('day', timestamp) as timestamp, AVG(greatest(available, prevAvailable)) as available
+        FROM windowed_availability
+        GROUP BY 1 ORDER BY 1
+    `, [endpoint, region])).rows;
+
+    /**
+     * Backfilling results with defaults and enforcing length
+     *
+     * - We want to always return 30 datapoints
+     * - We want to make sure that every day in the interval is there, without gaps
+     */
+
+    const endInterval = subDays(new Date(), 1);
+    const startInterval = subDays(endInterval, 29);
+    const intervalDays = eachDayOfInterval({ start: startInterval, end: endInterval });
+    const defaults = intervalDays.map((day) => {
+        return { timestamp: formatISO(day), available: null }
+    });
+
+    let result = sortBy(unionBy(rows, defaults, 'timestamp'), 'timestamp').slice(-30);
+
+    await s3Client.send(new PutObjectCommand({
+        Bucket: process.env.WEBSITE_BUCKET,
+        Key: `api/daily-${endpoint}-${region}.json`,
+        Body: JSON.stringify({ timestamp: formatISO(new Date()), data: result }),
+        ContentType: "application/json"
+    }));
+}
+
 export const aggregateWorker = async function (event, context) {
 
     const aggregation = JSON.parse(event.Records[0].body);
@@ -196,6 +253,8 @@ export const aggregateWorker = async function (event, context) {
         await aggregateInstantEndpoint(aggregation);
     } else if ("recent-issues" === aggregation.type) {
         await aggreateRecentIssues(aggregation);
+    } else if ("daily-endpoint" === aggregation.type) {
+        await aggreateDailyEndpoint(aggregation);
     } else {
         console.error("Unknown aggregation", event);
     }
