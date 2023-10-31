@@ -76,9 +76,9 @@ const EXAMPLE_RECENT_ISSUES = {
 <Layout title="PodUptime | API Documentation" headerLink="/">
   <h1 class="mb-4 text-4xl font-bold text-pink-100">API Documentation</h1>
   <p>
-    This website is powered by a set of APIs that are open to the public. You can use these APIs to
-    build your own PodUptime dashboard, or to build something completely different. The APIs are
-    documented below.
+    This website is driven by a set of public APIs. You have the option to utilize these APIs to
+    create your own PodUptime dashboard or develop entirely different applications. The APIs are
+    documented below, providing you with the information needed to leverage their capabilities.
   </p>
 
   {/* GENERAL SECTION */}
@@ -89,16 +89,18 @@ const EXAMPLE_RECENT_ISSUES = {
   </h2>
   <h3 class="pb-2 text-xl font-bold">API Response Structure</h3>
   <p class="pb-2">
-    All the API responses are in JSON format and they respect the same structure. The response
-    contains a timestamp and a data object. The data object contains the actual data. The timestamp
-    (ISO 8601 format) always expose when the data was refreshed.
+    All the API responses adhere to a consistent JSON format. Each response comprises a timestamp
+    and a data object. The data object contains the actual information. The timestamp is always
+    included in ISO 8601 format, providing visibility into when the data was last refreshed.
+    This standardized structure ensures clarity and consistency across all API responses.
   </p>
   <pre class="text-xs text-pink-100"><code>{JSON.stringify(EXAMPLE_STRUCTURE, null, 2)}</code></pre>
   <h3 class="pb-2 pt-4 text-xl font-bold">Available Regions</h3>
   <p>
-    PodUptime is a global monitoring system. We have monitoring servers in different regions of the
-    world. Each region has a unique identifier. The region identifier is used in the API URIs to
-    specify from which region you want to get the data from.
+    PodUptime operates as a global monitoring system with monitoring servers located in various
+    regions around the world. Each region is assigned a unique identifier. You can specify
+    the desired region in the API URIs to access the data from the specific region of your
+    choice. This regional approach allows you to retrieve data relevant to your location or preferences.
   </p>
   <table class="mt-4">
     <thead class="text-sm">
@@ -122,9 +124,10 @@ const EXAMPLE_RECENT_ISSUES = {
   </table>
   <h3 class="pb-2 pt-4 text-xl font-bold">Monitored Endpoints</h3>
   <p>
-    A monitored endpoint is a service that is monitored by PodUptime. Each monitored endpoint has a
-    unique identifier. The endpoint identifier is used in the API URIs to specify from which
-    endpoint you want to get the data from.
+    A monitored endpoint is a service that PodUptime actively monitors. Each monitored endpoint
+    is assigned a unique identifier. You can use the endpoint identifier in the API URIs to
+    specify which endpoint's data you wish to access. This approach allows you to retrieve
+    information specific to the monitored service of interest.
   </p>
   <table class="mt-4">
     <thead class="text-sm">
@@ -154,8 +157,9 @@ const EXAMPLE_RECENT_ISSUES = {
     Overall Instant API
   </h2>
   <p>
-    The Instant API is a simple API that returns a list of availability percentages for all the
-    monitored endpoints in the last 30 minutes.
+    The Instant API is a straightforward API that provides a list of availability percentages for
+    all the monitored endpoints within the last 30 minutes. This information offers a snapshot of
+    the recent availability of the monitored services.
   </p>
   <h3 class="pt-4 text-xl font-bold">URI structure</h3>
   <p>
@@ -201,8 +205,8 @@ const EXAMPLE_RECENT_ISSUES = {
         <td class="border border-dotted p-4">Number</td>
         <td class="border border-dotted p-4">Yes</td>
         <td class="border border-dotted p-4"
-          >When null the availability is unknown, otherwise is a number between 0 and 1 representing
-          the availability percentage.</td
+          >When the value is null, it signifies that the availability is unknown. Otherwise,
+          the value is a number between 0 and 1, representing the availability percentage</td
         >
       </tr>
     </tbody>
@@ -217,8 +221,10 @@ const EXAMPLE_RECENT_ISSUES = {
     Endpoint Instant API
   </h2>
   <p>
-    The endpoint instance API is a simple API that returns the list of all the monitored urls
-    availability percentage for a given monitored endpoint in the last 30 minutes.
+    The Endpoint Instance API is a straightforward API that provides a list of availability percentages
+    for all the monitored URLs associated with a specific monitored endpoint within the last 30 minutes.
+    This information offers insights into the recent availability of the individual URLs within the
+    selected endpoint.
   </p>
   <h3 class="pt-4 text-xl font-bold">URI structure</h3>
   <p>
@@ -273,8 +279,8 @@ const EXAMPLE_RECENT_ISSUES = {
         <td class="border border-dotted p-4">Number</td>
         <td class="border border-dotted p-4">Yes</td>
         <td class="border border-dotted p-4"
-          >When null the availability is unknown, otherwise is a number between 0 and 1 representing
-          the availability percentage.</td
+          >When the value is null, it signifies that the availability is unknown. Otherwise, the value
+          is a number between 0 and 1, representing the availability percentage</td
         >
       </tr>
     </tbody>
@@ -290,10 +296,11 @@ const EXAMPLE_RECENT_ISSUES = {
     Endpoint Detailed API
   </h2>
   <p>
-    The endpoint detailed API is a simple API that returns a list of 1440 data points (one for each
-    minute of the last 24 hours) for a given monitored endpoint. The API always returns the data in
-    the same order, from the oldest to the most recent, backfilling the missing data with null
-    values.
+    The Endpoint Detailed API is a straightforward API that offers a list of 1440 data points,
+    each representing one minute of the availability history for a specified monitored endpoint
+    within the last 24 hours. The data is consistently ordered from the oldest to the most recent,
+    with any gaps or missing data filled with null values. This API provides a comprehensive view
+    of the endpoint's availability over a 24-hour period.
   </p>
   <h3 class="pt-4 text-xl font-bold">URI structure</h3>
   <p>
@@ -343,8 +350,7 @@ const EXAMPLE_RECENT_ISSUES = {
         <td class="border border-dotted p-4">Number</td>
         <td class="border border-dotted p-4">Yes</td>
         <td class="border border-dotted p-4"
-          >When null the availability is unknown, otherwise is a number between 0 and 1 representing
-          the availability percentage.</td
+          >When the value is null, it signifies that the availability is unknown. Otherwise, the value is a number between 0 and 1, representing the availability percentage</td
         >
       </tr>
     </tbody>
@@ -360,9 +366,11 @@ const EXAMPLE_RECENT_ISSUES = {
     Endpoint Daily API
   </h2>
   <p>
-    The endpoint daily API is a simple API that returns a list of 30 data points (one for each day
-    of the last 30 days) for a given monitored endpoint. The API always returns the data in the same
-    order, from the oldest to the most recent, backfilling the missing data with null values.
+    The Endpoint Daily API is a straightforward API that provides a list of 30 data points,
+    each representing one day's availability for a specified monitored endpoint within the last
+    30 days. The data is consistently ordered from the oldest to the most recent, with any gaps
+    or missing data filled with null values. This API offers a condensed overview of the endpoint's
+    daily availability over the past 30 days.
   </p>
   <h3 class="pt-4 text-xl font-bold">URI structure</h3>
   <p>
@@ -412,8 +420,7 @@ const EXAMPLE_RECENT_ISSUES = {
         <td class="border border-dotted p-4">Number</td>
         <td class="border border-dotted p-4">Yes</td>
         <td class="border border-dotted p-4"
-          >When null the availability is unknown, otherwise is a number between 0 and 1 representing
-          the availability percentage.</td
+          >When the value is null, it signifies that the availability is unknown. Otherwise, the value is a number between 0 and 1, representing the availability percentage</td
         >
       </tr>
     </tbody>
@@ -428,8 +435,9 @@ const EXAMPLE_RECENT_ISSUES = {
     Recent Issues API
   </h2>
   <p>
-    The recent issues API is a simple API that returns a the list of the full events for the last 10
-    issues recorded by the monitoring system.
+    The Recent Issues API is a straightforward API that offers a list of the full events for the
+    last 10 issues recorded by the monitoring system. This API provides access to detailed information
+    about the most recent 10 incidents or problems detected by the monitoring system.
   </p>
   <h3 class="pt-4 text-xl font-bold">URI structure</h3>
   <p>
@@ -599,7 +607,7 @@ const EXAMPLE_RECENT_ISSUES = {
           <td class="border border-dotted p-4">Number</td>
           <td class="border border-dotted p-4">Yes</td>
           <td class="border border-dotted p-4"
-            >In this case since we are dealing with an issue the availavility is always 0.</td
+            >In the context of issues, the availability value is consistently set to 0.</td
           >
         </tr>
       </tbody>
