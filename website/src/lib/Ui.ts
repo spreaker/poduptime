@@ -33,6 +33,14 @@ const getStatus = (available: number | null | undefined) => {
   return 'PARTIAL'
 }
 
+const getAvailabilityPercentage = (available: number | null | undefined) => {
+  if (typeof available === 'undefined') return '...'
+  if (available === null) return 'Unknown Availability'
+  if (available === 0) return '0% Availability'
+  if (available === 1) return '100% Availability'
+  return `${(available * 100).toFixed(3)}% Availability`
+}
+
 function updateBadge(
   element: HTMLElement | undefined | null,
   available: number | null | undefined
@@ -75,6 +83,39 @@ export function updateStatusBadges(data: Instant[]) {
   }
   data.forEach((instant) => {
     updateStatusBadge(instant)
+  })
+}
+
+export function updateDailyGrid(data: Detail[]) {
+  if (data.length === 0) {
+    for (let i = 0; i < 30; i++) {
+      const cell = document.getElementById(`daily-cell-${i}`)
+      const cellText = document.getElementById(`daily-cell-text-${i}`)
+      if (cell && cellText) {
+        cell.classList.remove(
+          ...DETAIL_CELL_CLASSES['UNKNOWN'],
+          ...DETAIL_CELL_CLASSES['UP'],
+          ...DETAIL_CELL_CLASSES['DOWN'],
+          ...DETAIL_CELL_CLASSES['PARTIAL'],
+          ...DETAIL_CELL_CLASSES['LOADING']
+        )
+        cell.classList.add(...DETAIL_CELL_CLASSES['LOADING'])
+        cellText.innerText = `...`
+      }
+    }
+  }
+  data.forEach((item, i) => {
+    const cell = document.getElementById(`daily-cell-${i}`)
+    const cellText = document.getElementById(`daily-cell-text-${i}`)
+    if (cell && cellText) {
+      cell.classList.remove(...DETAIL_CELL_CLASSES['LOADING'])
+      cell.classList.add(...DETAIL_CELL_CLASSES[getStatus(item.available)])
+      cellText.innerText = `${new Intl.DateTimeFormat('default', {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric'
+      }).format(new Date(item.timestamp))} ${getAvailabilityPercentage(item.available)}`
+    }
   })
 }
 

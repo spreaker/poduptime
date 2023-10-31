@@ -2,14 +2,18 @@
 import Layout from '../layouts/Layout.astro'
 import { MONITORED, REGIONS } from '../lib/Constants'
 
-const MATRIX: number[][] = []
-
+const LAST_24_HOURS: number[][] = []
 for (let i = 0; i < 24; i++) {
   let ROW: number[] = []
   for (let j = 0; j < 60; j++) {
     ROW.push(1)
   }
-  MATRIX.push(ROW)
+  LAST_24_HOURS.push(ROW)
+}
+
+const LAST_30_DAYS: number[] = []
+for (let i = 0; i < 30; i++) {
+  LAST_30_DAYS.push(1)
 }
 
 export function getStaticPaths() {
@@ -84,7 +88,7 @@ const endpointServices = MONITORED[endpointId || ''].services
   <table class="mt-4 w-full opacity-80">
     <tbody>
       {
-        MATRIX.map((row, i) => {
+        LAST_24_HOURS.map((row, i) => {
           return (
             <tr>
               {row.map((col, j) => (
@@ -146,6 +150,70 @@ const endpointServices = MONITORED[endpointId || ''].services
     </li>
   </ul>
   <div class="flex items-baseline border-b-2 border-dotted border-pink-100 pt-6">
+    <h2 class="flex-grow pb-2 text-2xl font-bold text-pink-100">Daily Status</h2>
+    <span class="text-xs">last 30 days</span>
+  </div>
+  <table class="mt-4 w-full opacity-80">
+    <tbody>
+      <tr>
+        {
+          LAST_30_DAYS.map((_, i) => {
+            return (
+              <td
+                id={`daily-cell-${i}`}
+                class={[
+                  'bg-gray-500',
+                  'hover:bg-gray-300',
+                  'text-white',
+                  'border',
+                  'border-transparent',
+                  'h-5',
+                  'sm:h-6',
+                  'aspect-square',
+                  'group',
+                  'transition-colors',
+                  'duration-500',
+                  'relative'
+                ].join(' ')}
+              >
+                <span
+                  id={`daily-cell-text-${i}`}
+                  class="absolute top-4 z-10 hidden rounded bg-zinc-950 px-3 py-2 text-xs font-thin group-hover:block"
+                >
+                  ...
+                </span>
+              </td>
+            )
+          })
+        }
+      </tr>
+    </tbody>
+  </table>
+  <ul class="grid grid-cols-2 pt-1 sm:flex">
+    <li>
+      <span class="mr-2 inline-block h-3 w-3 bg-lime-500"></span><span class="pr-2 text-xs">UP</span
+      >
+    </li>
+    <li>
+      <span class="mr-2 inline-block h-3 w-3 bg-yellow-500"></span><span class="pr-2 text-xs"
+        >PARTIAL</span
+      >
+    </li>
+    <li>
+      <span class="mr-2 inline-block h-3 w-3 bg-red-500"></span><span class="pr-2 text-xs"
+        >DOWN</span
+      >
+    </li>
+    <li>
+      <span class="mr-2 inline-block h-3 w-3 bg-gray-500"></span><span class="pr-2 text-xs"
+        >UNKNOWN</span
+      >
+    </li>
+    <li class="sm:ml-auto">
+      <a class="text-xs underline" href="/about/">Learn more ↗</a>
+    </li>
+  </ul>
+  <div class="flex items-baseline border-b-2 border-dotted border-pink-100 pt-6">
     <h2 class="flex-grow pb-2 text-2xl font-bold text-pink-100">Recent Issues</h2>
     <span class="text-xs">10 most recent</span>
   </div>
@@ -154,7 +222,12 @@ const endpointServices = MONITORED[endpointId || ''].services
 
 <script>
   import { fetchDetailedAndServiceInstantsAndRecentIssuesData } from '../lib/Api'
-  import { updateDetailedGrid, updateServiceStatusBadges, updateRecentIssues } from '../lib/Ui'
+  import {
+    updateDetailedGrid,
+    updateServiceStatusBadges,
+    updateRecentIssues,
+    updateDailyGrid
+  } from '../lib/Ui'
 
   const vars = JSON.parse(document.getElementById('data')?.dataset.vars || '{}')
   const endpointId = vars.id || ''
@@ -162,24 +235,23 @@ const endpointServices = MONITORED[endpointId || ''].services
   document.getElementById('region')?.addEventListener('change', async (event) => {
     const region = (event.target as HTMLSelectElement).value
     updateDetailedGrid([])
+    updateDailyGrid([])
     updateServiceStatusBadges(endpointId, [])
     updateRecentIssues(null)
-    const { instants, detailed, issues } = await fetchDetailedAndServiceInstantsAndRecentIssuesData(
-      endpointId,
-      region
-    )
+    const { instants, detailed, issues, daily } =
+      await fetchDetailedAndServiceInstantsAndRecentIssuesData(endpointId, region)
     updateDetailedGrid(detailed)
     updateServiceStatusBadges(endpointId, instants)
     updateRecentIssues(issues)
+    updateDailyGrid(daily)
   })
 
   // Render data for global region
-  const { instants, detailed, issues } = await fetchDetailedAndServiceInstantsAndRecentIssuesData(
-    endpointId,
-    'global'
-  )
+  const { instants, detailed, issues, daily } =
+    await fetchDetailedAndServiceInstantsAndRecentIssuesData(endpointId, 'global')
 
   updateDetailedGrid(detailed)
   updateServiceStatusBadges(endpointId, instants)
   updateRecentIssues(issues)
+  updateDailyGrid(daily)
 </script>
