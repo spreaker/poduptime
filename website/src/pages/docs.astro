@@ -1,0 +1,174 @@
+---
+import Layout from '../layouts/Layout.astro'
+import { API_BASE_URL, HOSTING, REGIONS } from '../lib/Constants'
+
+const EXAMPLE_STRUCTURE = {
+  timestamp: '2023-10-31T12:46:33Z',
+  data: []
+}
+
+const EXAMPLE_INSTANT = {
+  timestamp: '2023-10-31T12:46:33Z',
+  data: [
+    { endpoint: 'acast', available: 1 },
+    { endpoint: 'alitu', available: 1 }
+  ]
+}
+
+const EXAMPLE_INSTANT_SERVICE = {
+  timestamp: '2023-10-31T14:56:33Z',
+  data: [
+    { type: 'enclosure', available: 1 },
+    { type: 'feed', available: 1 }
+  ]
+}
+---
+
+<Layout title="PodUptime | Documentation" headerLink="/">
+  <h1 class="mb-4 text-4xl font-bold text-pink-100">Documentation</h1>
+  <p>
+    This website is powered by a set of APIs that are open to the public. You can use these APIs to
+    build your own PodUptime dashboard, or to build something completely different. The APIs are
+    documented below.
+  </p>
+
+  {/* GENERAL SECTION */}
+  <h2
+    class="mb-4 mt-6 border-b-2 border-dotted border-pink-100 pb-2 text-2xl font-bold text-pink-100"
+  >
+    General API Information
+  </h2>
+  <p class="pb-2">
+    All the API responses are in JSON format and they respect the same structure. The response
+    contains a timestamp and a data object. The data object contains the actual data. The timestamp
+    (ISO 8601 format) always expose when the data was refreshed.
+  </p>
+  <h3 class="text-xl font-bold">Example:</h3>
+  <pre class="text-xs text-pink-100"><code>{JSON.stringify(EXAMPLE_STRUCTURE, null, 2)}</code></pre>
+
+  {/* OVERALL INSTANT API */}
+  <h2
+    class="mb-4 mt-6 border-b-2 border-dotted border-pink-100 pb-2 text-2xl font-bold text-pink-100"
+  >
+    Overall Instant API
+  </h2>
+  <p>
+    The Instant API is a simple API that returns a list of availability percentages for all the
+    podcasting services in the last 30 minutes.
+  </p>
+  <h3 class="pt-4 text-xl font-bold">URIs:</h3>
+  <ul class="list-outside list-disc pl-4">
+    {
+      REGIONS.map((region) => {
+        return (
+          <li>
+            <a
+              class="text-sm underline"
+              href={`${API_BASE_URL}/api/instant-${region.id}.json`}
+              target="_blank"
+            >
+              {API_BASE_URL}/api/instant-{region.id}.json
+            </a>
+          </li>
+        )
+      })
+    }
+  </ul>
+  <h3 class="pt-4 text-xl font-bold">Data:</h3>
+  <table>
+    <thead class="text-sm">
+      <tr>
+        <td class="px-4 py-2 font-semibold">Field</td>
+        <td class="px-4 py-2 font-semibold">Type</td>
+        <td class="px-4 py-2 font-semibold">Nullable</td>
+        <td class="px-4 py-2 font-semibold">Description</td>
+      </tr>
+    </thead>
+    <tbody class="text-sm">
+      <tr>
+        <td class="border border-dotted p-4">endpoint</td>
+        <td class="border border-dotted p-4">String</td>
+        <td class="border border-dotted p-4">No</td>
+        <td class="border border-dotted p-4">The name of the podcasting service.</td>
+      </tr>
+      <tr>
+        <td class="border border-dotted p-4">available</td>
+        <td class="border border-dotted p-4">Number</td>
+        <td class="border border-dotted p-4">Yes</td>
+        <td class="border border-dotted p-4"
+          >When null the availability is unknown, otherwise is a number between 0 and 1 representing
+          the availability percentage.</td
+        >
+      </tr>
+    </tbody>
+  </table>
+  <h3 class="pb-2 pt-4 text-xl font-bold">Example:</h3>
+  <pre class="text-xs text-pink-100"><code>{JSON.stringify(EXAMPLE_INSTANT, null, 2)}</code></pre>
+
+  {/* SERVICE INSTANT API */}
+  <h2
+    class="mb-4 mt-6 border-b-2 border-dotted border-pink-100 pb-2 text-2xl font-bold text-pink-100"
+  >
+    Service Instant API
+  </h2>
+  <p>
+    The service instance API is a simple API that returns the list of all the monitored urls
+    availability percentage for a given podcasting service in the last 30 minutes.
+  </p>
+  <h3 class="pt-4 text-xl font-bold">URIs:</h3>
+  <ul class="list-outside list-disc pl-4">
+    {
+      REGIONS.map((region) => {
+        return (
+          <li>
+            <a
+              class="text-sm underline"
+              href={`${API_BASE_URL}/api/instant-${HOSTING[0].id}-${region.id}.json`}
+              target="_blank"
+            >
+              {API_BASE_URL}/api/instant-{HOSTING[0].id}-{region.id}.json
+            </a>
+          </li>
+        )
+      })
+    }
+  </ul>
+  <h3 class="pt-4 text-xl font-bold">Data:</h3>
+  <table>
+    <thead class="text-sm">
+      <tr>
+        <td class="px-4 py-2 font-semibold">Field</td>
+        <td class="px-4 py-2 font-semibold">Type</td>
+        <td class="px-4 py-2 font-semibold">Nullable</td>
+        <td class="px-4 py-2 font-semibold">Description</td>
+      </tr>
+    </thead>
+    <tbody class="text-sm">
+      <tr>
+        <td class="border border-dotted p-4">type</td>
+        <td class="border border-dotted p-4">String</td>
+        <td class="border border-dotted p-4">No</td>
+        <td class="border border-dotted p-4"
+          >The type of the monitored url. We now support those types:
+          <ul class="list-inside list-disc pl-2 pt-1">
+            <li><code>enclosure</code></li>
+            <li><code>feed</code></li>
+            <li><code>prefix</code></li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <td class="border border-dotted p-4">available</td>
+        <td class="border border-dotted p-4">Number</td>
+        <td class="border border-dotted p-4">Yes</td>
+        <td class="border border-dotted p-4"
+          >When null the availability is unknown, otherwise is a number between 0 and 1 representing
+          the availability percentage.</td
+        >
+      </tr>
+    </tbody>
+  </table>
+  <h3 class="pb-2 pt-4 text-xl font-bold">Example:</h3>
+  <pre
+    class="text-xs text-pink-100"><code>{JSON.stringify(EXAMPLE_INSTANT_SERVICE, null, 2)}</code></pre>
+</Layout>
