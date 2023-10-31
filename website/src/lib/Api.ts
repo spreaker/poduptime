@@ -37,6 +37,17 @@ export async function fetchDetailedData(endpoint: string, region: string): Promi
     })
 }
 
+export async function fetchDailyData(endpoint: string, region: string): Promise<Detail[]> {
+  return await fetch(`${API_BASE_URL}/api/daily-${endpoint}-${region}.json`)
+    .then((response) => response.json() as Promise<ApiResponse<Detail[]>>)
+    .then((response) => {
+      return response.data
+    })
+    .catch(() => {
+      return []
+    })
+}
+
 export async function fetchRecentIssues(endpoint: string, region: string): Promise<Issue[]> {
   return await fetch(`${API_BASE_URL}/api/recent-issues-${endpoint}-${region}.json`)
     .then((response) => response.json() as Promise<ApiResponse<Issue[]>>)
@@ -55,11 +66,13 @@ export async function fetchDetailedAndServiceInstantsAndRecentIssuesData(
   detailed: Detail[]
   instants: ServiceInstant[]
   issues: Issue[]
+  daily: Detail[]
 }> {
-  const [detailed, instants, issues] = await Promise.all([
+  const [detailed, instants, issues, daily] = await Promise.all([
     fetchDetailedData(endpoint, region),
     fetchServiceInstantsData(endpoint, region),
-    fetchRecentIssues(endpoint, region)
+    fetchRecentIssues(endpoint, region),
+    fetchDailyData(endpoint, region)
   ])
-  return { detailed, instants, issues }
+  return { detailed, instants, issues, daily }
 }

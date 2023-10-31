@@ -78,6 +78,39 @@ export function updateStatusBadges(data: Instant[]) {
   })
 }
 
+export function updateDailyGrid(data: Detail[]) {
+  if (data.length === 0) {
+    for (let i = 0; i < 30; i++) {
+      const cell = document.getElementById(`daily-cell-${i}`)
+      const cellText = document.getElementById(`daily-cell-text-${i}`)
+      if (cell && cellText) {
+        cell.classList.remove(
+          ...DETAIL_CELL_CLASSES['UNKNOWN'],
+          ...DETAIL_CELL_CLASSES['UP'],
+          ...DETAIL_CELL_CLASSES['DOWN'],
+          ...DETAIL_CELL_CLASSES['PARTIAL'],
+          ...DETAIL_CELL_CLASSES['LOADING']
+        )
+        cell.classList.add(...DETAIL_CELL_CLASSES['LOADING'])
+        cellText.innerText = `...`
+      }
+    }
+  }
+  data.forEach((item, i) => {
+    const cell = document.getElementById(`daily-cell-${i}`)
+    const cellText = document.getElementById(`daily-cell-text-${i}`)
+    if (cell && cellText) {
+      cell.classList.remove(...DETAIL_CELL_CLASSES['LOADING'])
+      cell.classList.add(...DETAIL_CELL_CLASSES[getStatus(item.available)])
+      cellText.innerText = `${new Intl.DateTimeFormat('default', {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric'
+      }).format(new Date(item.timestamp))}`
+    }
+  })
+}
+
 export function updateDetailedGrid(data: Detail[]) {
   if (data.length === 0) {
     for (let i = 0; i < 1440; i++) {
