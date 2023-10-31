@@ -65,3 +65,5 @@ Resources:
               Type: string
             - Name: traversal
               Type: string
+            - Name: error
+              Type: string
