@@ -1,12 +1,12 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { SendMessageCommand } from "@aws-sdk/client-sqs";
+import { SendMessageBatchCommand } from "@aws-sdk/client-sqs";
 import { aggregateMinutely } from "./handler.js"
 import config from "../../conf/config.js";
 import { flattenDeep } from "lodash-es";
 import { use } from "../../common/fixtures.js";
 
-const expectedCalls = flattenDeep(config.regions.map((region) => {
+const expectedMessages = flattenDeep(config.regions.map((region) => {
     return [
         { type: "instant", region: region.id }
     ].concat(
@@ -28,17 +28,14 @@ describe('analytics - aggregateMinutely', () => {
 
         await aggregateMinutely();
 
-        const calls = sqs.calls(SendMessageCommand);
+        const calls = sqs.calls(SendMessageBatchCommand);
+        assert.equal(calls.length, Math.ceil(expectedMessages.length / 10));
 
-        assert.equal(calls.length, expectedCalls.length);
+        const actualMessages = flattenDeep(calls.map((call) => {
+            return call.args[0].input.Entries.map((entry) => { return JSON.parse(entry.MessageBody) });
+        }));
 
-        calls.forEach((call, index) => {
-
-            const args = call.args;
-            const input = args[0].input;
-
-            assert.equal(input.MessageBody, JSON.stringify(expectedCalls[index]));
-        })
+        assert.deepStrictEqual(expectedMessages, actualMessages);
     });
 
     it('should handle SQS errors', async (t) => {
@@ -48,6 +45,6 @@ describe('analytics - aggregateMinutely', () => {
 
         await aggregateMinutely();
 
-        assert.equal(errorLogger.mock.calls.length, expectedCalls.length);
+        assert.equal(errorLogger.mock.calls.length, Math.ceil(expectedMessages.length / 10));
     });
 });

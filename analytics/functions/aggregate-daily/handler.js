@@ -1,24 +1,33 @@
-import { SendMessageCommand, SQSClient } from "@aws-sdk/client-sqs";
+import { SendMessageBatchCommand, SQSClient } from "@aws-sdk/client-sqs";
 import config from "../../conf/config.js";
+import { chunk, flattenDeep } from "lodash-es";
+
+const { randomUUID } = await import('node:crypto');
 
 const client = new SQSClient({});
 
-const scheduleAggregation = async (payload) => {
-    try {
-        await client.send(new SendMessageCommand({
-            QueueUrl: process.env.AGGREGATE_QUEUE_URL,
-            MessageBody: JSON.stringify(payload)
-        }));
-    } catch (err) {
-        console.error(`Cannot schedule aggregation`, payload, err);
-    }
+const buildAggregationMessage = function (payload) {
+    return { Id: randomUUID(), MessageBody: JSON.stringify(payload) }
 }
 
 export const aggregateDaily = async function (event, context) {
 
-    for (const region of config.regions) {
-        for (const endpoint of config.endpoints) {
-            await scheduleAggregation({ type: "daily-endpoint", region: region.id, endpoint: endpoint.id });
+    const messages = flattenDeep(config.regions.map((region) => {
+        return config.endpoints.map((endpoint) => {
+            return [
+                { type: "daily-endpoint", region: region.id, endpoint: endpoint.id }
+            ];
+        });
+    })).map(buildAggregationMessage);
+
+    for (const batch of chunk(messages, 10)) {
+        try {
+            await client.send(new SendMessageBatchCommand({
+                QueueUrl: process.env.CHECK_QUEUE_URL,
+                Entries: batch
+            }));
+        } catch (err) {
+            console.error(`Cannot schedule aggregation batch`, batch, err);
         }
     }
 }
