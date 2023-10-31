@@ -33,6 +33,14 @@ const getStatus = (available: number | null | undefined) => {
   return 'PARTIAL'
 }
 
+const getAvailabilityPercentage = (available: number | null | undefined) => {
+  if (typeof available === 'undefined') return '...'
+  if (available === null) return 'Unknown Availability'
+  if (available === 0) return '0% Availability'
+  if (available === 1) return '100% Availability'
+  return `${(available * 100).toFixed(3)}% Availability`
+}
+
 function updateBadge(
   element: HTMLElement | undefined | null,
   available: number | null | undefined
@@ -106,7 +114,7 @@ export function updateDailyGrid(data: Detail[]) {
         year: 'numeric',
         month: 'numeric',
         day: 'numeric'
-      }).format(new Date(item.timestamp))}`
+      }).format(new Date(item.timestamp))} ${getAvailabilityPercentage(item.available)}`
     }
   })
 }
