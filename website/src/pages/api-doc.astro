@@ -1,6 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro'
-import { API_BASE_URL, HOSTING, REGIONS } from '../lib/Constants'
+import { API_BASE_URL, HOSTING, PREFIXES, REGIONS } from '../lib/Constants'
 
 const EXAMPLE_STRUCTURE = {
   timestamp: '2023-10-31T12:46:33Z',
@@ -74,7 +74,7 @@ const EXAMPLE_RECENT_ISSUES = {
 ---
 
 <Layout title="PodUptime | Documentation" headerLink="/">
-  <h1 class="mb-4 text-4xl font-bold text-pink-100">Documentation</h1>
+  <h1 class="mb-4 text-4xl font-bold text-pink-100">API Documentation</h1>
   <p>
     This website is powered by a set of APIs that are open to the public. You can use these APIs to
     build your own PodUptime dashboard, or to build something completely different. The APIs are
@@ -87,13 +87,65 @@ const EXAMPLE_RECENT_ISSUES = {
   >
     General API Information
   </h2>
+  <h3 class="pb-2 text-xl font-bold">API Response Structure</h3>
   <p class="pb-2">
     All the API responses are in JSON format and they respect the same structure. The response
     contains a timestamp and a data object. The data object contains the actual data. The timestamp
     (ISO 8601 format) always expose when the data was refreshed.
   </p>
-  <h3 class="text-xl font-bold">Example Response Structure:</h3>
   <pre class="text-xs text-pink-100"><code>{JSON.stringify(EXAMPLE_STRUCTURE, null, 2)}</code></pre>
+  <h3 class="pb-2 pt-4 text-xl font-bold">Available Regions</h3>
+  <p>
+    PodUptime is a global monitoring system. We have monitoring servers in different regions of the
+    world. Each region has a unique identifier. The region identifier is used in the API URIs to
+    specify from which region you want to get the data from.
+  </p>
+  <table class="mt-4">
+    <thead class="text-sm">
+      <tr>
+        <td class="px-4 py-2 font-semibold">Region</td>
+        <td class="px-4 py-2 font-semibold">Identifier</td>
+      </tr>
+    </thead>
+    <tbody class="text-sm">
+      {
+        REGIONS.map((region) => {
+          return (
+            <tr>
+              <td class="border border-dotted p-4">{region.label}</td>
+              <td class="border border-dotted p-4">{region.id}</td>
+            </tr>
+          )
+        })
+      }
+    </tbody>
+  </table>
+  <h3 class="pb-2 pt-4 text-xl font-bold">Monitored Endpoints</h3>
+  <p>
+    A monitored endpoint is a service that is monitored by PodUptime. Each monitored endpoint has a
+    unique identifier. The endpoint identifier is used in the API URIs to specify from which
+    endpoint you want to get the data from.
+  </p>
+  <table class="mt-4">
+    <thead class="text-sm">
+      <tr>
+        <td class="px-4 py-2 font-semibold">Endpoint</td>
+        <td class="px-4 py-2 font-semibold">Identifier</td>
+      </tr>
+    </thead>
+    <tbody class="text-sm">
+      {
+        [...HOSTING, ...PREFIXES].map((endpoint) => {
+          return (
+            <tr>
+              <td class="border border-dotted p-4">{endpoint.label}</td>
+              <td class="border border-dotted p-4">{endpoint.id}</td>
+            </tr>
+          )
+        })
+      }
+    </tbody>
+  </table>
 
   {/* OVERALL INSTANT API */}
   <h2
@@ -105,11 +157,11 @@ const EXAMPLE_RECENT_ISSUES = {
     The Instant API is a simple API that returns a list of availability percentages for all the
     monitored endpoints in the last 30 minutes.
   </p>
-  <h3 class="pt-4 text-xl font-bold">URI structure:</h3>
+  <h3 class="pt-4 text-xl font-bold">URI structure</h3>
   <p>
     {API_BASE_URL}/api/instant-<code class="rounded border px-2 py-1 text-xs">region</code>.json
   </p>
-  <h3 class="pt-4 text-xl font-bold">Example URIs:</h3>
+  <h3 class="pt-4 text-xl font-bold">Example URIs</h3>
   <ul class="list-outside list-disc pl-4">
     {
       REGIONS.map((region) => {
@@ -127,7 +179,7 @@ const EXAMPLE_RECENT_ISSUES = {
       })
     }
   </ul>
-  <h3 class="pt-4 text-xl font-bold">Data:</h3>
+  <h3 class="pt-4 text-xl font-bold">Data</h3>
   <table>
     <thead class="text-sm">
       <tr>
@@ -155,7 +207,7 @@ const EXAMPLE_RECENT_ISSUES = {
       </tr>
     </tbody>
   </table>
-  <h3 class="pb-2 pt-4 text-xl font-bold">Example Response:</h3>
+  <h3 class="pb-2 pt-4 text-xl font-bold">Example Response</h3>
   <pre class="text-xs text-pink-100"><code>{JSON.stringify(EXAMPLE_INSTANT, null, 2)}</code></pre>
 
   {/* ENDPOINT INSTANT API */}
@@ -168,13 +220,13 @@ const EXAMPLE_RECENT_ISSUES = {
     The endpoint instance API is a simple API that returns the list of all the monitored urls
     availability percentage for a given monitored endpoint in the last 30 minutes.
   </p>
-  <h3 class="pt-4 text-xl font-bold">URI structure:</h3>
+  <h3 class="pt-4 text-xl font-bold">URI structure</h3>
   <p>
     {API_BASE_URL}/api/instant-<code class="rounded border px-2 py-1 text-xs">endpoint</code>-<code
       class="rounded border px-2 py-1 text-xs">region</code
     >.json
   </p>
-  <h3 class="pt-4 text-xl font-bold">Example URIs:</h3>
+  <h3 class="pt-4 text-xl font-bold">Example URIs</h3>
   <ul class="list-outside list-disc pl-4">
     {
       REGIONS.map((region) => {
@@ -192,7 +244,7 @@ const EXAMPLE_RECENT_ISSUES = {
       })
     }
   </ul>
-  <h3 class="pt-4 text-xl font-bold">Data:</h3>
+  <h3 class="pt-4 text-xl font-bold">Data</h3>
   <table>
     <thead class="text-sm">
       <tr>
@@ -227,7 +279,7 @@ const EXAMPLE_RECENT_ISSUES = {
       </tr>
     </tbody>
   </table>
-  <h3 class="pb-2 pt-4 text-xl font-bold">Example Response:</h3>
+  <h3 class="pb-2 pt-4 text-xl font-bold">Example Response</h3>
   <pre
     class="text-xs text-pink-100"><code>{JSON.stringify(EXAMPLE_INSTANT_SERVICE, null, 2)}</code></pre>
 
@@ -243,13 +295,13 @@ const EXAMPLE_RECENT_ISSUES = {
     the same order, from the oldest to the most recent, backfilling the missing data with null
     values.
   </p>
-  <h3 class="pt-4 text-xl font-bold">URI structure:</h3>
+  <h3 class="pt-4 text-xl font-bold">URI structure</h3>
   <p>
     {API_BASE_URL}/api/detailed-<code class="rounded border px-2 py-1 text-xs">endpoint</code>-<code
       class="rounded border px-2 py-1 text-xs">region</code
     >.json
   </p>
-  <h3 class="pt-4 text-xl font-bold">Example URIs:</h3>
+  <h3 class="pt-4 text-xl font-bold">Example URIs</h3>
   <ul class="list-outside list-disc pl-4">
     {
       REGIONS.map((region) => {
@@ -267,7 +319,7 @@ const EXAMPLE_RECENT_ISSUES = {
       })
     }
   </ul>
-  <h3 class="pt-4 text-xl font-bold">Data:</h3>
+  <h3 class="pt-4 text-xl font-bold">Data</h3>
   <table>
     <thead class="text-sm">
       <tr>
@@ -297,7 +349,7 @@ const EXAMPLE_RECENT_ISSUES = {
       </tr>
     </tbody>
   </table>
-  <h3 class="pb-2 pt-4 text-xl font-bold">Example Response:</h3>
+  <h3 class="pb-2 pt-4 text-xl font-bold">Example Response</h3>
   <pre
     class="text-xs text-pink-100"><code>{JSON.stringify(EXAMPLE_DETAILED_SERVICE, null, 2)}</code></pre>
 
@@ -312,13 +364,13 @@ const EXAMPLE_RECENT_ISSUES = {
     of the last 30 days) for a given monitored endpoint. The API always returns the data in the same
     order, from the oldest to the most recent, backfilling the missing data with null values.
   </p>
-  <h3 class="pt-4 text-xl font-bold">URI structure:</h3>
+  <h3 class="pt-4 text-xl font-bold">URI structure</h3>
   <p>
     {API_BASE_URL}/api/daily-<code class="rounded border px-2 py-1 text-xs">endpoint</code>-<code
       class="rounded border px-2 py-1 text-xs">region</code
     >.json
   </p>
-  <h3 class="pt-4 text-xl font-bold">Example URIs:</h3>
+  <h3 class="pt-4 text-xl font-bold">Example URIs</h3>
   <ul class="list-outside list-disc pl-4">
     {
       REGIONS.map((region) => {
@@ -336,7 +388,7 @@ const EXAMPLE_RECENT_ISSUES = {
       })
     }
   </ul>
-  <h3 class="pt-4 text-xl font-bold">Data:</h3>
+  <h3 class="pt-4 text-xl font-bold">Data</h3>
   <table>
     <thead class="text-sm">
       <tr>
@@ -366,7 +418,7 @@ const EXAMPLE_RECENT_ISSUES = {
       </tr>
     </tbody>
   </table>
-  <h3 class="pb-2 pt-4 text-xl font-bold">Example Response:</h3>
+  <h3 class="pb-2 pt-4 text-xl font-bold">Example Response</h3>
   <pre
     class="text-xs text-pink-100"><code>{JSON.stringify(EXAMPLE_DAILY_SERVICE, null, 2)}</code></pre>
   {/* RECENT ISSUES API */}
@@ -379,12 +431,12 @@ const EXAMPLE_RECENT_ISSUES = {
     The recent issues API is a simple API that returns a the list of the full events for the last 10
     issues recorded by the monitoring system.
   </p>
-  <h3 class="pt-4 text-xl font-bold">URI structure:</h3>
+  <h3 class="pt-4 text-xl font-bold">URI structure</h3>
   <p>
     {API_BASE_URL}/api/recent-issues-<code class="rounded border px-2 py-1 text-xs">endpoint</code
     >-<code class="rounded border px-2 py-1 text-xs">region</code>.json
   </p>
-  <h3 class="pt-4 text-xl font-bold">Example URIs:</h3>
+  <h3 class="pt-4 text-xl font-bold">Example URIs</h3>
   <ul class="list-outside list-disc pl-4">
     {
       REGIONS.map((region) => {
@@ -402,7 +454,7 @@ const EXAMPLE_RECENT_ISSUES = {
       })
     }
   </ul>
-  <h3 class="pt-4 text-xl font-bold">Data:</h3>
+  <h3 class="pt-4 text-xl font-bold">Data</h3>
   <div class="w-full overflow-x-scroll">
     <table>
       <thead class="text-sm">
@@ -442,6 +494,7 @@ const EXAMPLE_RECENT_ISSUES = {
             <ul class="list-inside list-disc pl-2 pt-1">
               {
                 REGIONS.map((region) => {
+                  if (region.id === 'global') return
                   return (
                     <li>
                       <code>{region.id}</code>
@@ -552,7 +605,7 @@ const EXAMPLE_RECENT_ISSUES = {
       </tbody>
     </table>
   </div>
-  <h3 class="pb-2 pt-4 text-xl font-bold">Example Response:</h3>
+  <h3 class="pb-2 pt-4 text-xl font-bold">Example Response</h3>
   <pre
     class="text-xs text-pink-100"><code>{JSON.stringify(EXAMPLE_RECENT_ISSUES, null, 2)}</code></pre>
 </Layout>
