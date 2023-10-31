@@ -4,6 +4,7 @@ import { PutEventsCommand } from "@aws-sdk/client-eventbridge";
 import { checkEndpoint } from "./handler.js"
 import { MockAgent } from 'undici';
 import { use } from "../../common/fixtures.js";
+import { UnexpectedRedirectLocationError, UnexpectedHttpStatusError, serializeError } from "../../common/errors.js";
 
 const assertEventBridgePayload = function (events, expected) {
 
@@ -28,9 +29,9 @@ const assertEventBridgePayload = function (events, expected) {
     assert.equal(actual.status, expected.status);
     assert.deepStrictEqual(actual.headers, expected.headers);
     assert.deepStrictEqual(actual.traversal, expected.traversal);
-    assert.equal(actual.available, expected.available);
     assert.equal(actual.type, expected.type);
     assert.deepStrictEqual(actual.error, expected.error);
+    assert.equal(actual.available, expected.available);
 }
 
 describe('monitor - checkEndpoint', () => {
@@ -74,6 +75,37 @@ describe('monitor - checkEndpoint', () => {
         });
     });
 
+    it('should mark unavailable an enclosure responding with wrong http status', async () => {
+
+        const service = {
+            type: "enclosure",
+            endpoint: "test",
+            url: "https://poduptime.com/test.mp3"
+        };
+
+        await checkEndpoint({ Records: [{ body: JSON.stringify(service) }] }, {
+            agentFactory: (options) => {
+
+                const mockAgent = new MockAgent(options);
+                mockAgent.disableNetConnect();
+
+                mockAgent.get("https://poduptime.com").intercept({ path: "/test.mp3", method: 'HEAD' }).reply(404);
+
+                return mockAgent;
+            }
+        });
+
+        assertEventBridgePayload(events, {
+            url: "https://poduptime.com/test.mp3",
+            status: 404,
+            headers: {},
+            traversal: ["https://poduptime.com/test.mp3"],
+            available: 0,
+            type: "enclosure",
+            error: serializeError(new UnexpectedHttpStatusError(404))
+        });
+    });
+
     it('should check prefix endpoint, not following redirects, and send result to EventBridge', async () => {
 
         const service = {
@@ -111,6 +143,38 @@ describe('monitor - checkEndpoint', () => {
         });
     });
 
+    it('should mark unavailable a prefix responding with wrong http status', async () => {
+
+        const service = {
+            type: "prefix",
+            endpoint: "test",
+            url: "https://prefix.com/poduptime.com/test.mp3",
+            expected_url: "https://poduptime.com/test.mp3"
+        };
+
+        await checkEndpoint({ Records: [{ body: JSON.stringify(service) }] }, {
+            agentFactory: (options) => {
+
+                const mockAgent = new MockAgent(options);
+                mockAgent.disableNetConnect();
+
+                mockAgent.get("https://prefix.com").intercept({ path: "/poduptime.com/test.mp3", method: 'HEAD' }).reply(200);
+
+                return mockAgent;
+            }
+        });
+
+        assertEventBridgePayload(events, {
+            url: "https://prefix.com/poduptime.com/test.mp3",
+            status: 200,
+            headers: {},
+            traversal: ["https://prefix.com/poduptime.com/test.mp3"],
+            available: 0,
+            type: "prefix",
+            error: serializeError(new UnexpectedHttpStatusError(200))
+        });
+    });
+
     it('should mark unavailable a prefix redirecting to the wrong place', async () => {
 
         const service = {
@@ -140,7 +204,8 @@ describe('monitor - checkEndpoint', () => {
             headers: { location: "https://poduptime.com/wrong.mp3" },
             traversal: ["https://prefix.com/poduptime.com/test.mp3"],
             available: 0,
-            type: "prefix"
+            type: "prefix",
+            error: serializeError(new UnexpectedRedirectLocationError("https://poduptime.com/wrong.mp3"))
         });
     });
 
@@ -180,7 +245,7 @@ describe('monitor - checkEndpoint', () => {
             traversal: ["https://poduptime.com/test.mp3"],
             available: 0,
             type: "enclosure",
-            error: { code: error.code, message: error.message, name: error.name }
+            error: serializeError(error)
         });
     });
 
