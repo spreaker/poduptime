@@ -9,10 +9,7 @@ const EXAMPLE_STRUCTURE = {
 
 const EXAMPLE_INSTANT = {
   timestamp: '2023-10-31T12:46:33Z',
-  data: [
-    { endpoint: 'acast', available: 1 },
-    { endpoint: 'alitu', available: 1 }
-  ]
+  data: [{ endpoint: 'acast', available: 1 }, { endpoint: 'alitu', available: 1 }, '...']
 }
 
 const EXAMPLE_INSTANT_SERVICE = {
@@ -20,6 +17,27 @@ const EXAMPLE_INSTANT_SERVICE = {
   data: [
     { type: 'enclosure', available: 1 },
     { type: 'feed', available: 1 }
+  ]
+}
+
+const EXAMPLE_DETAILED_SERVICE = {
+  timestamp: '2023-10-31T15:35:35Z',
+  data: [
+    { timestamp: '2023-10-30T15:35:00Z', available: 1 },
+    { timestamp: '2023-10-30T15:36:00Z', available: 1 },
+    { timestamp: '2023-10-30T15:37:00Z', available: 1 },
+    { timestamp: '2023-10-30T15:38:00Z', available: 1 },
+    '...'
+  ]
+}
+
+const EXAMPLE_DAILY_SERVICE = {
+  timestamp: '2023-10-31T10:05:46Z',
+  data: [
+    { timestamp: '2023-10-28T00:00:00Z', available: 1 },
+    { timestamp: '2023-10-29T00:00:00Z', available: 1 },
+    { timestamp: '2023-10-30T00:00:00Z', available: 1 },
+    '...'
   ]
 }
 ---
@@ -43,7 +61,7 @@ const EXAMPLE_INSTANT_SERVICE = {
     contains a timestamp and a data object. The data object contains the actual data. The timestamp
     (ISO 8601 format) always expose when the data was refreshed.
   </p>
-  <h3 class="text-xl font-bold">Example:</h3>
+  <h3 class="text-xl font-bold">Example Response Structure:</h3>
   <pre class="text-xs text-pink-100"><code>{JSON.stringify(EXAMPLE_STRUCTURE, null, 2)}</code></pre>
 
   {/* OVERALL INSTANT API */}
@@ -56,7 +74,11 @@ const EXAMPLE_INSTANT_SERVICE = {
     The Instant API is a simple API that returns a list of availability percentages for all the
     podcasting services in the last 30 minutes.
   </p>
-  <h3 class="pt-4 text-xl font-bold">URIs:</h3>
+  <h3 class="pt-4 text-xl font-bold">URI structure:</h3>
+  <p>
+    {API_BASE_URL}/api/instant-<code class="rounded border px-2 py-1 text-xs">region</code>.json
+  </p>
+  <h3 class="pt-4 text-xl font-bold">Example URIs:</h3>
   <ul class="list-outside list-disc pl-4">
     {
       REGIONS.map((region) => {
@@ -102,7 +124,7 @@ const EXAMPLE_INSTANT_SERVICE = {
       </tr>
     </tbody>
   </table>
-  <h3 class="pb-2 pt-4 text-xl font-bold">Example:</h3>
+  <h3 class="pb-2 pt-4 text-xl font-bold">Example Response:</h3>
   <pre class="text-xs text-pink-100"><code>{JSON.stringify(EXAMPLE_INSTANT, null, 2)}</code></pre>
 
   {/* SERVICE INSTANT API */}
@@ -115,7 +137,13 @@ const EXAMPLE_INSTANT_SERVICE = {
     The service instance API is a simple API that returns the list of all the monitored urls
     availability percentage for a given podcasting service in the last 30 minutes.
   </p>
-  <h3 class="pt-4 text-xl font-bold">URIs:</h3>
+  <h3 class="pt-4 text-xl font-bold">URI structure:</h3>
+  <p>
+    {API_BASE_URL}/api/instant-<code class="rounded border px-2 py-1 text-xs">endpoint</code>-<code
+      class="rounded border px-2 py-1 text-xs">region</code
+    >.json
+  </p>
+  <h3 class="pt-4 text-xl font-bold">Example URIs:</h3>
   <ul class="list-outside list-disc pl-4">
     {
       REGIONS.map((region) => {
@@ -168,7 +196,146 @@ const EXAMPLE_INSTANT_SERVICE = {
       </tr>
     </tbody>
   </table>
-  <h3 class="pb-2 pt-4 text-xl font-bold">Example:</h3>
+  <h3 class="pb-2 pt-4 text-xl font-bold">Example Response:</h3>
   <pre
     class="text-xs text-pink-100"><code>{JSON.stringify(EXAMPLE_INSTANT_SERVICE, null, 2)}</code></pre>
+
+  {/* SERVICE DETAILED API */}
+  <h2
+    class="mb-4 mt-6 border-b-2 border-dotted border-pink-100 pb-2 text-2xl font-bold text-pink-100"
+  >
+    Service Detailed API
+  </h2>
+  <p>
+    The service detailed API is a simple API that returns a list of 1440 data points (one for each
+    minute of the last 24 hours) for a given podcasting service. The API always returns the data in
+    the same order, from the oldest to the most recent, backfilling the missing data with null
+    values.
+  </p>
+  <h3 class="pt-4 text-xl font-bold">URI structure:</h3>
+  <p>
+    {API_BASE_URL}/api/detailed-<code class="rounded border px-2 py-1 text-xs">endpoint</code>-<code
+      class="rounded border px-2 py-1 text-xs">region</code
+    >.json
+  </p>
+  <h3 class="pt-4 text-xl font-bold">Example URIs:</h3>
+  <ul class="list-outside list-disc pl-4">
+    {
+      REGIONS.map((region) => {
+        return (
+          <li>
+            <a
+              class="text-sm underline"
+              href={`${API_BASE_URL}/api/detailed-${HOSTING[0].id}-${region.id}.json`}
+              target="_blank"
+            >
+              {API_BASE_URL}/api/detailed-{HOSTING[0].id}-{region.id}.json
+            </a>
+          </li>
+        )
+      })
+    }
+  </ul>
+  <h3 class="pt-4 text-xl font-bold">Data:</h3>
+  <table>
+    <thead class="text-sm">
+      <tr>
+        <td class="px-4 py-2 font-semibold">Field</td>
+        <td class="px-4 py-2 font-semibold">Type</td>
+        <td class="px-4 py-2 font-semibold">Nullable</td>
+        <td class="px-4 py-2 font-semibold">Description</td>
+      </tr>
+    </thead>
+    <tbody class="text-sm">
+      <tr>
+        <td class="border border-dotted p-4">timestamp</td>
+        <td class="border border-dotted p-4">String</td>
+        <td class="border border-dotted p-4">No</td>
+        <td class="border border-dotted p-4"
+          >The timestamp of the data point. The timestamp is in ISO 8601 format.
+        </td>
+      </tr>
+      <tr>
+        <td class="border border-dotted p-4">available</td>
+        <td class="border border-dotted p-4">Number</td>
+        <td class="border border-dotted p-4">Yes</td>
+        <td class="border border-dotted p-4"
+          >When null the availability is unknown, otherwise is a number between 0 and 1 representing
+          the availability percentage.</td
+        >
+      </tr>
+    </tbody>
+  </table>
+  <h3 class="pb-2 pt-4 text-xl font-bold">Example Response:</h3>
+  <pre
+    class="text-xs text-pink-100"><code>{JSON.stringify(EXAMPLE_DETAILED_SERVICE, null, 2)}</code></pre>
+
+  {/* SERVICE DAILY API */}
+  <h2
+    class="mb-4 mt-6 border-b-2 border-dotted border-pink-100 pb-2 text-2xl font-bold text-pink-100"
+  >
+    Service Daily API
+  </h2>
+  <p>
+    The service daily API is a simple API that returns a list of 30 data points (one for each day of
+    the last 30 days) for a given podcasting service. The API always returns the data in the same
+    order, from the oldest to the most recent, backfilling the missing data with null values.
+  </p>
+  <h3 class="pt-4 text-xl font-bold">URI structure:</h3>
+  <p>
+    {API_BASE_URL}/api/daily-<code class="rounded border px-2 py-1 text-xs">endpoint</code>-<code
+      class="rounded border px-2 py-1 text-xs">region</code
+    >.json
+  </p>
+  <h3 class="pt-4 text-xl font-bold">Example URIs:</h3>
+  <ul class="list-outside list-disc pl-4">
+    {
+      REGIONS.map((region) => {
+        return (
+          <li>
+            <a
+              class="text-sm underline"
+              href={`${API_BASE_URL}/api/daily-${HOSTING[0].id}-${region.id}.json`}
+              target="_blank"
+            >
+              {API_BASE_URL}/api/daily-{HOSTING[0].id}-{region.id}.json
+            </a>
+          </li>
+        )
+      })
+    }
+  </ul>
+  <h3 class="pt-4 text-xl font-bold">Data:</h3>
+  <table>
+    <thead class="text-sm">
+      <tr>
+        <td class="px-4 py-2 font-semibold">Field</td>
+        <td class="px-4 py-2 font-semibold">Type</td>
+        <td class="px-4 py-2 font-semibold">Nullable</td>
+        <td class="px-4 py-2 font-semibold">Description</td>
+      </tr>
+    </thead>
+    <tbody class="text-sm">
+      <tr>
+        <td class="border border-dotted p-4">timestamp</td>
+        <td class="border border-dotted p-4">String</td>
+        <td class="border border-dotted p-4">No</td>
+        <td class="border border-dotted p-4"
+          >The timestamp of the data point. The timestamp is in ISO 8601 format.
+        </td>
+      </tr>
+      <tr>
+        <td class="border border-dotted p-4">available</td>
+        <td class="border border-dotted p-4">Number</td>
+        <td class="border border-dotted p-4">Yes</td>
+        <td class="border border-dotted p-4"
+          >When null the availability is unknown, otherwise is a number between 0 and 1 representing
+          the availability percentage.</td
+        >
+      </tr>
+    </tbody>
+  </table>
+  <h3 class="pb-2 pt-4 text-xl font-bold">Example Response:</h3>
+  <pre
+    class="text-xs text-pink-100"><code>{JSON.stringify(EXAMPLE_DAILY_SERVICE, null, 2)}</code></pre>
 </Layout>
