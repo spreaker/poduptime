@@ -135,7 +135,17 @@ functions:
           pattern:
             source:
               - monitor
-
+  #
+  # Function: aggregateMinutely
+  # Purpose: kickstart aggregation jobs that are supposed to run
+  #   on a minutely schedule
+  # Failure mode: This function is invoked async from EventBridge so its retry
+  #   policy is managed with maximumRetryAttempts/onFailure. In this
+  #   specific case being this function re-triggered every minute from
+  #   a scheduled event, we're NOT going to perform any retry in case
+  #   this function fail and we don't need the initial event to be
+  #   delivered to a DLQ
+  #
   aggregateMinutely:
     name: ${self:custom.appPrefix}-aggregateMinutely
     handler: functions/aggregate-minutely/handler.aggregateMinutely
@@ -147,7 +157,17 @@ functions:
           - QueueUrl
     events:
       - schedule: rate(1 minute)
-
+    maximumRetryAttempts: 0
+  #
+  # Function: aggregateDaily
+  # Purpose: kickstart aggregation jobs that are supposed to run
+  #   on a daily schedule
+  # Failure mode: This function is invoked async from EventBridge so its retry
+  #   policy is managed with maximumRetryAttempts/onFailure. In this
+  #   specific case to avoid waiting until the next day to have it triggered
+  #   again we allow for a few retries but we don't need the initial event to be
+  #   delivered to a DLQ
+  #
   aggregateDaily:
     name: ${self:custom.appPrefix}-aggregateDaily
     handler: functions/aggregate-daily/handler.aggregateDaily
@@ -159,6 +179,7 @@ functions:
           - QueueUrl
     events:
       - schedule: cron(5 0 * * ? *)
+    maximumRetryAttempts: 5
 
   aggregateWorker:
     name: ${self:custom.appPrefix}-aggregateWorker
@@ -174,9 +195,19 @@ functions:
             Fn::GetAtt:
               - AggregateQueue
               - Arn
-
+  #
+  # Function: cleanupDatabase
+  # Purpose: implement database retention period by deleting rows falling
+  #   out of the retention window.
+  # Failure mode: This function is invoked async from EventBridge so its retry
+  #   policy is managed with maximumRetryAttempts/onFailure. In this
+  #   specific case to avoid waiting until the next day to have it triggered
+  #   again we allow for a few retries but we don't need the initial event to be
+  #   delivered to a DLQ
+  #
   cleanupDatabase:
     name: ${self:custom.appPrefix}-cleanupDatabase
     handler: functions/cleanup-database/handler.cleanupDatabase
     events:
       - schedule: rate(1 day)
+    maximumRetryAttempts: 5
