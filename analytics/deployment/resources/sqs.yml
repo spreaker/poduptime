@@ -4,6 +4,33 @@ Resources:
     Properties:
       QueueName: ${self:custom.appPrefix}-${opt:stage}-blackhole
       MessageRetentionPeriod: 60
+  ArchiveDeadletterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ${self:custom.appPrefix}-${opt:stage}-archive-deadletter
+      MessageRetentionPeriod: 604800
+  ArchiveRawQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ${self:custom.appPrefix}-${opt:stage}-archive-raw
+      VisibilityTimeout: 60
+      RedrivePolicy:
+        maxReceiveCount: 5
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - ArchiveDeadletterQueue
+            - Arn
+  ArchiveDatabaseQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ${self:custom.appPrefix}-${opt:stage}-archive-database
+      VisibilityTimeout: 60
+      RedrivePolicy:
+        maxReceiveCount: 5
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - ArchiveDeadletterQueue
+            - Arn
   AggregateQueue:
     Type: AWS::SQS::Queue
     Properties:
