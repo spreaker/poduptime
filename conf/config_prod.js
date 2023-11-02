@@ -191,6 +191,21 @@ const endpoints = [
     ],
   },
   {
+    id: "podbean",
+    label: "Podbean",
+    website_url: "https://podbean.com",
+    services: [
+      {
+        type: "enclosure",
+        url: "https://mcdn.podbean.com/mf/web/ffwsj4/37417951.mp3",
+      },
+      {
+        type: "feed",
+        url: "https://feed.podbean.com/poduptime/feed.xml",
+      },
+    ],
+  },
+  {
     id: "podtrac",
     label: "Podtrac",
     website_url: "https://analytics.podtrac.com",
