@@ -179,7 +179,7 @@ functions:
           - QueueUrl
     events:
       - schedule: cron(5 0 * * ? *)
-    maximumRetryAttempts: 5
+    maximumRetryAttempts: 2
   #
   # Function: aggregateWorker
   # Purpose: perform a single aggregation job and save the results
@@ -218,4 +218,4 @@ functions:
     handler: functions/cleanup-database/handler.cleanupDatabase
     events:
       - schedule: rate(1 day)
-    maximumRetryAttempts: 5
+    maximumRetryAttempts: 2
