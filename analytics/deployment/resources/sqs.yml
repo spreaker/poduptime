@@ -20,6 +20,21 @@ Resources:
           Fn::GetAtt:
             - ArchiveDeadletterQueue
             - Arn
+  ArchiveRawQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: events.amazonaws.com
+          Action: SQS:SendMessage
+          Resource:
+            Fn::GetAtt:
+              - ArchiveRawQueue
+              - Arn
+      Queues:
+        - Ref: ArchiveRawQueue
   ArchiveDatabaseQueue:
     Type: AWS::SQS::Queue
     Properties:
@@ -31,6 +46,21 @@ Resources:
           Fn::GetAtt:
             - ArchiveDeadletterQueue
             - Arn
+  ArchiveDatabaseQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: events.amazonaws.com
+          Action: SQS:SendMessage
+          Resource:
+            Fn::GetAtt:
+              - ArchiveDatabaseQueue
+              - Arn
+      Queues:
+        - Ref: ArchiveDatabaseQueue
   AggregateQueue:
     Type: AWS::SQS::Queue
     Properties:
