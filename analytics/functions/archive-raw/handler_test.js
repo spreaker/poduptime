@@ -14,7 +14,7 @@ describe('analytics - archiveRaw', () => {
 
         const event = { id: "1", timestamp: formatISO(new Date()), available: 1 };
 
-        await archiveRaw({ detail: event });
+        await archiveRaw({ Records: [{ body: JSON.stringify({ detail: event }) }] });
 
         const calls = s3.calls(PutObjectCommand);
 
@@ -35,7 +35,7 @@ describe('analytics - archiveRaw', () => {
 
         const event = { timestamp: formatISO(new Date()), available: 1 };
 
-        await throwsAsync(archiveRaw({ detail: event }), null);
+        await throwsAsync(archiveRaw({ Records: [{ body: JSON.stringify({ detail: event }) }] }), null);
     });
 
 });
