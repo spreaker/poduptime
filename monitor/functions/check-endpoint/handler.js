@@ -120,16 +120,12 @@ export const checkEndpoint = async function (event, context) {
     const service = JSON.parse(event.Records[0].body);
     const result = await performCheck(service, context?.agentFactory ?? createAgent);
 
-    try {
-        await client.send(new PutEventsCommand({
-            Entries: [{
-                EventBusName: process.env.EVENT_BUS,
-                Source: 'monitor',
-                DetailType: "measurement",
-                Detail: JSON.stringify(result)
-            }]
-        }));
-    } catch (e) {
-        console.error("Put event error", result, e);
-    }
+    await client.send(new PutEventsCommand({
+        Entries: [{
+            EventBusName: process.env.EVENT_BUS,
+            Source: 'monitor',
+            DetailType: "measurement",
+            Detail: JSON.stringify(result)
+        }]
+    }));
 }

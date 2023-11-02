@@ -13,13 +13,9 @@ export const kickstart = async function (event, context) {
             return { Id: randomUUID(), MessageBody: JSON.stringify({ endpoint: endpoint.id, ...service }) }
         });
 
-        try {
-            await client.send(new SendMessageBatchCommand({
-                QueueUrl: process.env.CHECK_QUEUE_URL,
-                Entries: messages
-            }));
-        } catch (err) {
-            console.error("Cannot schedule endpoint check", endpoint, err);
-        }
+        await client.send(new SendMessageBatchCommand({
+            QueueUrl: process.env.CHECK_QUEUE_URL,
+            Entries: messages
+        }));
     }
 }
