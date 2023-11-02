@@ -111,7 +111,16 @@ resources:
   - ${file(deployment/resources/sqs.yml)}
 
 functions:
-
+  #
+  # Function: archiveRaw
+  # Purpose: archive a raw copy of the incoming measurement event
+  #   on S3 for troubleshooting purposes and re-ingestion
+  # Failure mode:  This function is invoked by the Lambda/SQS poller
+  #   so its retry policy is managed by the SQS queue configuration. In this
+  #   specific case, it's setup to allow for 5 deliveries and then move the
+  #   message to a DLQ that hold the messages for a week to allow for a redrive
+  #
+  # TODO switch to SQS in a separate PR to avoid data loss
   archiveRaw:
     name: ${self:custom.appPrefix}-archiveRaw
     handler: functions/archive-raw/handler.archiveRaw
@@ -124,7 +133,16 @@ functions:
           pattern:
             source:
               - monitor
-
+  #
+  # Function: archiveDatabase
+  # Purpose: archive a the measurement event in Aurora to be used by
+  #   the aggregation tasks
+  # Failure mode:  This function is invoked by the Lambda/SQS poller
+  #   so its retry policy is managed by the SQS queue configuration. In this
+  #   specific case, it's setup to allow for 5 deliveries and then move the
+  #   message to a DLQ that hold the messages for a week to allow for a redrive
+  #
+  # TODO switch to SQS in a separate PR to avoid data loss
   archiveDatabase:
     name: ${self:custom.appPrefix}-archiveDatabase
     handler: functions/archive-database/handler.archiveDatabase

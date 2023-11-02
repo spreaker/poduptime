@@ -80,9 +80,9 @@ functions:
   # Purpose: perform a single monitoring job and dispatch the
   #   resulting status event to EventBridge
   # Failure mode:  This function is invoked by the Lambda/SQS poller
-  # so its retry policy is managed by the SQS queue configuration. In this
-  # specific case, it's setup to allow for single delivery and then move the
-  # message to a blackhole DLQ that evicts them fast and we'd never redrive.
+  #   so its retry policy is managed by the SQS queue configuration. In this
+  #   specific case, it's setup to allow for single delivery and then move the
+  #   message to a blackhole DLQ that evicts them fast and we'd never redrive.
   #
   checkEndpoint:
     name: ${self:custom.appPrefix}-checkEndpoint
