@@ -180,7 +180,15 @@ functions:
     events:
       - schedule: cron(5 0 * * ? *)
     maximumRetryAttempts: 5
-
+  #
+  # Function: aggregateWorker
+  # Purpose: perform a single aggregation job and save the results
+  #   on S3
+  # Failure mode:  This function is invoked by the Lambda/SQS poller
+  #   so its retry policy is managed by the SQS queue configuration. In this
+  #   specific case, it's setup to allow for single delivery and then move the
+  #   message to a blackhole DLQ that evicts them fast and we'd never redrive.
+  #
   aggregateWorker:
     name: ${self:custom.appPrefix}-aggregateWorker
     handler: functions/aggregate-worker/handler.aggregateWorker
