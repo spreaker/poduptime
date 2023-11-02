@@ -161,6 +161,10 @@ export function updateDetailedGrid(data: Detail[]) {
   })
 }
 
+function padCenter(str, maxLen, padChar = '\xa0') {
+  return str.padStart((str.length + maxLen) / 2, padChar).padEnd(maxLen, padChar)
+}
+
 function renderIssue(issue: Issue) {
   return `
 		<li class="pt-1">
@@ -177,7 +181,7 @@ function renderIssue(issue: Issue) {
           hour: '2-digit',
           minute: '2-digit',
           second: '2-digit'
-        }).format(new Date(issue.timestamp))} | ${issue.type.padEnd(9, '_')} | ${issue.region}
+        }).format(new Date(issue.timestamp))} |${padCenter(issue.type, 11)}| ${issue.region}
         </code>
 			</div>
 			<pre id="issue-detail-${issue.id}" class="text-xs hidden pt-1 overflow-x-scroll">${JSON.stringify(
