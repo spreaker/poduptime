@@ -161,34 +161,31 @@ export function updateDetailedGrid(data: Detail[]) {
   })
 }
 
-function padCenter(str, maxLen, padChar = '\xa0') {
-  return str.padStart((str.length + maxLen) / 2, padChar).padEnd(maxLen, padChar)
-}
-
 function renderIssue(issue: Issue) {
   return `
 		<li class="pt-1">
 			<div
 				onclick="document.getElementById('${`issue-detail-${issue.id}`}').classList.toggle('hidden')"
-				class="underline cursor-pointer text-sm"
 			>
-        <code class="rounded px-2 py-1 text-xs font-bold">
-				${new Intl.DateTimeFormat('default', {
-          timeZone: 'UTC',
-          year: '2-digit',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit'
-        }).format(new Date(issue.timestamp))} |${padCenter(issue.type, 11)}| ${issue.region}
-        </code>
-			</div>
-			<pre id="issue-detail-${issue.id}" class="text-xs hidden pt-1 overflow-x-scroll">${JSON.stringify(
-        issue,
-        null,
-        2
-      )}</pre>
+        <span class="text-xs cursor-pointer underline font-mono font-bold">${new Intl.DateTimeFormat(
+          'default',
+          {
+            timeZone: 'UTC',
+            year: '2-digit',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+          }
+        ).format(new Date(issue.timestamp))}</span>
+        <span class="text-xs"> | </span>
+        <span class="text-xs cursor-pointer underline ">${issue.type}</span>
+        <span class="text-xs"> | </span>
+        <span class="text-xs cursor-pointer underline ">${issue.region}</span>
+        <pre id="issue-detail-${
+          issue.id
+        }" class="text-xs hidden pt-1 overflow-x-scroll">${JSON.stringify(issue, null, 2)}</pre>
 		</li>`
 }
 
