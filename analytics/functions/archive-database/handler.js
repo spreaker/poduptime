@@ -2,7 +2,7 @@ import { query } from "../../common/database.js";
 
 export const archiveDatabase = async function (event, context) {
 
-    const result = event.detail;
+    const result = event.detail ? event.detail : JSON.parse(event.Records[0].body).detail;
 
     /**
      * Insert the measuement into the database. This message can
