@@ -22,7 +22,7 @@ Measurement results are sent to a dedicated `EventBridge` bus in the same region
 
 The purpose of the `analytics` component is to store data, manage its lifecycle, and perform aggregations to make this data available to the `website`.
 
-Incoming data from `EventBridge` is consumed by two different `Lambda` functions. Their main goals are to store data in two different storage systems:
+Incoming data from `EventBridge` is consumed by two different `Lambda` functions through dedicated `SQS` queues. Their main goals are to store data in two different storage systems:
 
 - Raw data is stored in `S3` in an `Athena`-friendly location. This ensures the data can be queried and remains available in case there's a need to replay it for ingestion elsewhere at a later stage.
 - Measurements are stored in `Aurora Serverless`.
