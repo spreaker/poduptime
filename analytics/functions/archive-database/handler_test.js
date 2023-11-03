@@ -34,7 +34,7 @@ describe('analytics - archiveDatabase', () => {
 
         const event = { ...SAMPLE_EVENT, available: 1 };
 
-        await archiveDatabase({ detail: event });
+        await archiveDatabase({ Records: [{ body: JSON.stringify({ detail: event }) }] });
 
         const measurement = await queryOne("SELECT * FROM measurements WHERE id = $1", [event.id]);
         assert.deepStrictEqual(measurement, {
@@ -55,7 +55,7 @@ describe('analytics - archiveDatabase', () => {
 
         const event = { ...SAMPLE_EVENT, available: 0 };
 
-        await archiveDatabase({ detail: event });
+        await archiveDatabase({ Records: [{ body: JSON.stringify({ detail: event }) }] });
 
         const measurement = await queryOne("SELECT * FROM measurements WHERE id = $1", [event.id]);
         assert.deepStrictEqual(measurement, {
@@ -84,7 +84,7 @@ describe('analytics - archiveDatabase', () => {
         // Missing required fields
         const event = { timestamp: formatISO(new Date()), available: 1 };
 
-        await throwsAsync(archiveDatabase({ detail: event }), null);
+        await throwsAsync(archiveDatabase({ Records: [{ body: JSON.stringify({ detail: event }) }] }), null);
     });
 
 });

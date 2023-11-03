@@ -5,7 +5,8 @@ const client = new S3Client({});
 
 export const archiveRaw = async function (event, context) {
 
-    const result = event.detail;
+    const result = event.detail ? event.detail : JSON.parse(event.Records[0].body).detail;
+
     const body = JSON.stringify(result);
     const contentType = "application/json";
 
