@@ -4,6 +4,7 @@ import { PutEventsCommand } from "@aws-sdk/client-eventbridge";
 import { checkEndpoint } from "./handler.js"
 import { MockAgent } from 'undici';
 import { use } from "../../common/fixtures.js";
+import { throwsAsync } from '../../common/assert.js'
 import { UnexpectedRedirectLocationError, UnexpectedHttpStatusError, serializeError } from "../../common/errors.js";
 
 const assertEventBridgePayload = function (events, expected) {
@@ -249,7 +250,7 @@ describe('monitor - checkEndpoint', () => {
         });
     });
 
-    it('should handle EventBridge errors', async (t) => {
+    it('should throw on EventBridge errors', async (t) => {
 
         const service = {
             type: "prefix",
@@ -258,10 +259,9 @@ describe('monitor - checkEndpoint', () => {
             expected_url: "https://poduptime.com/test.mp3"
         };
 
-        const errorLogger = t.mock.method(console, 'error', () => { });
         events.rejects('simulated error');
 
-        await checkEndpoint({ Records: [{ body: JSON.stringify(service) }] }, {
+        await throwsAsync(checkEndpoint({ Records: [{ body: JSON.stringify(service) }] }, {
             agentFactory: (options) => {
 
                 const mockAgent = new MockAgent(options);
@@ -273,8 +273,6 @@ describe('monitor - checkEndpoint', () => {
 
                 return mockAgent;
             }
-        });
-
-        assert.equal(errorLogger.mock.calls.length, 1);
+        }));
     });
 });

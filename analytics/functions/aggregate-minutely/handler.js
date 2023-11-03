@@ -25,13 +25,9 @@ export const aggregateMinutely = async function (event, context) {
     })).map(buildAggregationMessage);
 
     for (const batch of chunk(messages, 10)) {
-        try {
-            await client.send(new SendMessageBatchCommand({
-                QueueUrl: process.env.AGGREGATE_QUEUE_URL,
-                Entries: batch
-            }));
-        } catch (err) {
-            console.error(`Cannot schedule aggregation batch`, batch, err);
-        }
+        await client.send(new SendMessageBatchCommand({
+            QueueUrl: process.env.AGGREGATE_QUEUE_URL,
+            Entries: batch
+        }));
     }
 }

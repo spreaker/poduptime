@@ -111,7 +111,16 @@ resources:
   - ${file(deployment/resources/sqs.yml)}
 
 functions:
-
+  #
+  # Function: archiveRaw
+  # Purpose: archive a raw copy of the incoming measurement event
+  #   on S3 for troubleshooting purposes and re-ingestion
+  # Failure mode:  This function is invoked by the Lambda/SQS poller
+  #   so its retry policy is managed by the SQS queue configuration. In this
+  #   specific case, it's setup to allow for 5 deliveries and then move the
+  #   message to a DLQ that hold the messages for a week to allow for a redrive
+  #
+  # TODO switch to SQS in a separate PR to avoid data loss
   archiveRaw:
     name: ${self:custom.appPrefix}-archiveRaw
     handler: functions/archive-raw/handler.archiveRaw
@@ -124,7 +133,16 @@ functions:
           pattern:
             source:
               - monitor
-
+  #
+  # Function: archiveDatabase
+  # Purpose: archive a the measurement event in Aurora to be used by
+  #   the aggregation tasks
+  # Failure mode:  This function is invoked by the Lambda/SQS poller
+  #   so its retry policy is managed by the SQS queue configuration. In this
+  #   specific case, it's setup to allow for 5 deliveries and then move the
+  #   message to a DLQ that hold the messages for a week to allow for a redrive
+  #
+  # TODO switch to SQS in a separate PR to avoid data loss
   archiveDatabase:
     name: ${self:custom.appPrefix}-archiveDatabase
     handler: functions/archive-database/handler.archiveDatabase
@@ -135,7 +153,17 @@ functions:
           pattern:
             source:
               - monitor
-
+  #
+  # Function: aggregateMinutely
+  # Purpose: kickstart aggregation jobs that are supposed to run
+  #   on a minutely schedule
+  # Failure mode: This function is invoked async from EventBridge so its retry
+  #   policy is managed with maximumRetryAttempts/onFailure. In this
+  #   specific case being this function re-triggered every minute from
+  #   a scheduled event, we're NOT going to perform any retry in case
+  #   this function fail and we don't need the initial event to be
+  #   delivered to a DLQ
+  #
   aggregateMinutely:
     name: ${self:custom.appPrefix}-aggregateMinutely
     handler: functions/aggregate-minutely/handler.aggregateMinutely
@@ -147,7 +175,17 @@ functions:
           - QueueUrl
     events:
       - schedule: rate(1 minute)
-
+    maximumRetryAttempts: 0
+  #
+  # Function: aggregateDaily
+  # Purpose: kickstart aggregation jobs that are supposed to run
+  #   on a daily schedule
+  # Failure mode: This function is invoked async from EventBridge so its retry
+  #   policy is managed with maximumRetryAttempts/onFailure. In this
+  #   specific case to avoid waiting until the next day to have it triggered
+  #   again we allow for a few retries but we don't need the initial event to be
+  #   delivered to a DLQ
+  #
   aggregateDaily:
     name: ${self:custom.appPrefix}-aggregateDaily
     handler: functions/aggregate-daily/handler.aggregateDaily
@@ -159,7 +197,16 @@ functions:
           - QueueUrl
     events:
       - schedule: cron(5 0 * * ? *)
-
+    maximumRetryAttempts: 2
+  #
+  # Function: aggregateWorker
+  # Purpose: perform a single aggregation job and save the results
+  #   on S3
+  # Failure mode:  This function is invoked by the Lambda/SQS poller
+  #   so its retry policy is managed by the SQS queue configuration. In this
+  #   specific case, it's setup to allow for single delivery and then move the
+  #   message to a blackhole DLQ that evicts them fast and we'd never redrive.
+  #
   aggregateWorker:
     name: ${self:custom.appPrefix}-aggregateWorker
     handler: functions/aggregate-worker/handler.aggregateWorker
@@ -174,9 +221,19 @@ functions:
             Fn::GetAtt:
               - AggregateQueue
               - Arn
-
+  #
+  # Function: cleanupDatabase
+  # Purpose: implement database retention period by deleting rows falling
+  #   out of the retention window.
+  # Failure mode: This function is invoked async from EventBridge so its retry
+  #   policy is managed with maximumRetryAttempts/onFailure. In this
+  #   specific case to avoid waiting until the next day to have it triggered
+  #   again we allow for a few retries but we don't need the initial event to be
+  #   delivered to a DLQ
+  #
   cleanupDatabase:
     name: ${self:custom.appPrefix}-cleanupDatabase
     handler: functions/cleanup-database/handler.cleanupDatabase
     events:
       - schedule: rate(1 day)
+    maximumRetryAttempts: 2

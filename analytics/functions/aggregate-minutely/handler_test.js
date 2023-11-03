@@ -5,6 +5,7 @@ import { aggregateMinutely } from "./handler.js"
 import config from "../../conf/config.js";
 import { flattenDeep } from "lodash-es";
 import { use } from "../../common/fixtures.js";
+import { throwsAsync } from '../../common/assert.js'
 
 const expectedMessages = flattenDeep(config.regions.map((region) => {
     return [
@@ -38,13 +39,10 @@ describe('analytics - aggregateMinutely', () => {
         assert.deepStrictEqual(expectedMessages, actualMessages);
     });
 
-    it('should handle SQS errors', async (t) => {
+    it('should throw SQS errors', async (t) => {
 
-        const errorLogger = t.mock.method(console, 'error', () => { });
         sqs.rejects('simulated error');
 
-        await aggregateMinutely();
-
-        assert.equal(errorLogger.mock.calls.length, Math.ceil(expectedMessages.length / 10));
+        await throwsAsync(aggregateMinutely());
     });
 });

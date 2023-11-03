@@ -4,6 +4,7 @@ import { SendMessageBatchCommand } from "@aws-sdk/client-sqs";
 import { kickstart } from "./handler.js"
 import config from "../../conf/config.js";
 import { use } from "../../common/fixtures.js";
+import { throwsAsync } from '../../common/assert.js'
 
 describe('monitor - kickstart', () => {
 
@@ -32,13 +33,10 @@ describe('monitor - kickstart', () => {
         })
     });
 
-    it('should handle SQS errors', async (t) => {
+    it('should throw on SQS errors', async (t) => {
 
-        const errorLogger = t.mock.method(console, 'error', () => { });
         sqs.rejects('simulated error');
 
-        await kickstart();
-
-        assert.equal(errorLogger.mock.calls.length, config.endpoints.length);
+        await throwsAsync(kickstart());
     });
 });

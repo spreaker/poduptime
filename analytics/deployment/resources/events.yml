@@ -3,3 +3,22 @@ Resources:
     Type: AWS::Events::EventBus
     Properties:
       Name: ${self:custom.appPrefix}-${opt:stage}-main
+  SendToSQSArchiveEventRule:
+    Type: AWS::Events::Rule
+    Properties:
+      EventBusName: !Ref MainEventBus
+      EventPattern:
+        source:
+          - monitor
+      State: ENABLED
+      Targets:
+        - Id: send-to-sqs-archive-raw
+          Arn:
+            Fn::GetAtt:
+              - ArchiveRawQueue
+              - Arn
+        - Id: send-to-sqs-archive-database
+          Arn:
+            Fn::GetAtt:
+              - ArchiveDatabaseQueue
+              - Arn

@@ -1,5 +1,16 @@
 Resources:
+  BlackholeDeadletterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ${self:custom.appPrefix}-${opt:stage}-blackhole
+      MessageRetentionPeriod: 60
   CheckEndpointQueue:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: ${self:custom.appPrefix}-${opt:stage}-check-endpoint
+      RedrivePolicy:
+        maxReceiveCount: 1
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - BlackholeDeadletterQueue
+            - Arn
