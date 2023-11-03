@@ -86,7 +86,6 @@ custom:
   lambdaSubnetIds: !Split [",", "${param:lambdaSubnetIds}"]
   databaseSubnetIds: !Split [",", "${param:databaseSubnetIds}"]
   administrativeSecurityGroupId: ${param:administrativeSecurityGroupId}
-  observabilityAccountId: ${param:observabilityAccountId}
   observabilityLayerArn: ${param:observabilityLayerArn}
   observabilityQueueArn: ${param:observabilityQueueArn}
   prune:
