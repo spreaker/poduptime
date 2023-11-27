@@ -51,7 +51,7 @@ const _getSslCertificate = () => {
     }
 
     return new Promise((resolve, reject) => {
-        const filepath = `${__dirname}/../deployment/certificates/us-east-1-bundle.pem`;
+        const filepath = `${__dirname}../deployment/certificates/us-east-1-bundle.pem`;
         fs.readFile(filepath, (err, content) => {
             if (err) {
                 rdsCertificate = null;
