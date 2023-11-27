@@ -1,6 +1,9 @@
 import pg from 'pg';
 import { formatISO, parseISO } from 'date-fns';
 import { Signer } from "@aws-sdk/rds-signer";
+import fs from 'fs';
+import url from 'url';
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 const { Pool, types } = pg;
 
@@ -13,6 +16,7 @@ types.setTypeParser(1114, x => formatISO(parseISO(x)));
 
 let pool = null;
 let expiresAtEpoch = null;
+let rdsCertificate = null;
 
 const EXPIRE_TOLERANCE = 60 * 1000; // 1 minute
 const TOKEN_LIFETIME = 15 * 60 * 1000; // 15 minutes
@@ -39,6 +43,26 @@ const _getAuthToken = async (hostname, port, username) => {
         throw err;
     }
 };
+
+const _getSslCertificate = () => {
+
+    if (rdsCertificate) {
+        return Promise.resolve(rdsCertificate);
+    }
+
+    return new Promise((resolve, reject) => {
+        const filepath = `${__dirname}/../deployment/certificates/us-east-1-bundle.pem`;
+        fs.readFile(filepath, (err, content) => {
+            if (err) {
+                rdsCertificate = null;
+                reject(err);
+            } else {
+                rdsCertificate = content;
+                resolve(content);
+            }
+        });
+    });
+}
 
 const _epoch = () => {
     return (new Date()).getTime();
@@ -77,6 +101,13 @@ const _getPool = async () => {
     let { token, ttl } = await _getAuthToken(
         process.env.PGHOST, parseInt(process.env.PGPORT, 10), process.env.PGUSER
     );
+
+    // Use ssl if we're running in AWS Lambda
+    let ssl = null;
+    if (process.env.AWS_EXECUTION_ENV) {
+        ssl = { ca: await _getSslCertificate() };
+    }
+
     expiresAtEpoch = _epoch() + ttl;
 
     pool = new Pool({
@@ -85,7 +116,7 @@ const _getPool = async () => {
         database: process.env.PGDATABASE,
         port: process.env.PGPORT,
         password: token,
-        ssl: !!process.env.AWS_EXECUTION_ENV
+        ssl: ssl
     });
 
     return pool;
