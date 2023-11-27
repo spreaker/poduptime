@@ -25,9 +25,6 @@ RUN  mkdir -p /workspace/poduptime \
   /workspace/poduptime/website
 WORKDIR /workspace/poduptime
 
-# Install the serverless framework
-RUN npm install -g serverless@^3.38.0
-
 # Install deps
 COPY analytics/package*.json analytics
 RUN cd analytics && npm install --production=false --loglevel=error
