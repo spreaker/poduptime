@@ -6,7 +6,7 @@ provider:
   name: aws
   region: ${opt:region}
   stage: ${opt:stage}
-  runtime: nodejs18.x
+  runtime: nodejs20.x
   logRetentionInDays: 14
   architecture: arm64
   memorySize: 256
