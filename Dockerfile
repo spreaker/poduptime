@@ -1,8 +1,8 @@
-FROM amazonlinux:2023.2.20230920.1
+FROM public.ecr.aws/lambda/nodejs:20
 ARG BUILDPLATFORM TARGETPLATFORM TARGETOS TARGETARCH
 
 # Install nodejs
-RUN yum install nodejs npm git wget unzip -y && yum clean all
+RUN dnf install wget unzip -y && dnf clean all
 
 # Install awscli
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
@@ -26,7 +26,7 @@ RUN  mkdir -p /workspace/poduptime \
 WORKDIR /workspace/poduptime
 
 # Install the serverless framework
-RUN npm install -g serverless@^3.35.2
+RUN npm install -g serverless@^3.38.0
 
 # Install deps
 COPY analytics/package*.json analytics
@@ -42,3 +42,6 @@ COPY monitor        monitor
 COPY website        website
 COPY conf_test.js   .*
 COPY package*.json  ./
+
+# Reset endpoint defined in base image
+ENTRYPOINT []

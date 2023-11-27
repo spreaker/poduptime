@@ -1,4 +1,4 @@
-frameworkVersion: '^3.35.2'
+frameworkVersion: '^3.38.0'
 
 service: ${self:custom.appPrefix}
 
