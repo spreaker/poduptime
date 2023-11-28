@@ -1,4 +1,4 @@
-frameworkVersion: '^3.35.2'
+frameworkVersion: '^3.38.0'
 
 service: ${self:custom.appPrefix}
 
@@ -6,7 +6,7 @@ provider:
   name: aws
   region: ${opt:region}
   stage: ${opt:stage}
-  runtime: nodejs18.x
+  runtime: nodejs20.x
   architecture: arm64
   memorySize: 256
   stackTags:

@@ -10,10 +10,11 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@aws-sdk/client-s3": "^3.421.0",
-    "@aws-sdk/client-sqs": "^3.427.0",
-    "@aws-sdk/rds-signer": "^3.430.0",
+    "@aws-sdk/client-s3": "^3.458.0",
+    "@aws-sdk/client-sqs": "^3.458.0",
+    "@aws-sdk/rds-signer": "^3.458.0",
     "aws-sdk-client-mock": "^3.0.0",
+    "serverless": "^3.38.0",
     "serverless-prune-plugin": "^2.0.2"
   },
   "dependencies": {

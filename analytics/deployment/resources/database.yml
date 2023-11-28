@@ -36,6 +36,7 @@ Resources:
       DBClusterIdentifier: !Ref MainDatabaseCluster
       DBInstanceIdentifier: ${self:custom.appPrefix}-${opt:stage}-main-instance-1
       EnablePerformanceInsights: true
+      CACertificateIdentifier: rds-ca-rsa2048-g1
   MainDatabaseInstanceTwo:
     Condition: EnableDatabaseRedundancy
     Type: 'AWS::RDS::DBInstance'
@@ -45,3 +46,4 @@ Resources:
       DBClusterIdentifier: !Ref MainDatabaseCluster
       DBInstanceIdentifier: ${self:custom.appPrefix}-${opt:stage}-main-instance-2
       EnablePerformanceInsights: true
+      CACertificateIdentifier: rds-ca-rsa2048-g1
