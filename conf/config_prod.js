@@ -62,7 +62,7 @@ const endpoints = [
     services: [
       {
         type: "enclosure",
-        url: "https://www.buzzsprout.com/2257072/13713604-1-second-of-silence.mp3",
+        url: "https://www.buzzsprout.com/2257072/14229220-1-second-of-silence-re-upload.mp3",
       },
       {
         type: "feed",
