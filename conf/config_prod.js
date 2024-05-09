@@ -45,17 +45,6 @@ const endpoints = [
     ],
   },
   {
-    id: "megaphone",
-    label: "Megaphone",
-    website_url: "https://megaphone.fm",
-    services: [
-      {
-        type: "enclosure",
-        url: "https://traffic.megaphone.fm/VOXN5992769941.mp3?updated=1696351884",
-      },
-    ],
-  },
-  {
     id: "buzzsprout",
     label: "Buzzsprout",
     website_url: "https://www.buzzsprout.com",
