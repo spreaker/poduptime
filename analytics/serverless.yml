@@ -236,4 +236,4 @@ functions:
     handler: functions/cleanup-database/handler.cleanupDatabase
     events:
       - schedule: rate(1 day)
-    maximumRetryAttempts: 5
+    maximumRetryAttempts: 2
