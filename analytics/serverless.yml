@@ -9,6 +9,7 @@ provider:
   runtime: nodejs20.x
   architecture: arm64
   memorySize: 256
+  timeout: 10
   stackTags:
     voxnest:billing:app: ${self:custom.appPrefix}
   environment:
@@ -44,10 +45,10 @@ provider:
             - "s3:Abort*"
           Resource:
             - Fn::Join:
-              - ""
-              - - "arn:aws:s3:::"
-                - Ref: DataBucket
-                - "/*"
+                - ""
+                - - "arn:aws:s3:::"
+                  - Ref: DataBucket
+                  - "/*"
         - Effect: Allow
           Action:
             - "s3:Put*"
@@ -70,14 +71,14 @@ provider:
             - "rds-db:connect"
           Resource:
             - Fn::Join:
-              - ""
-              - - "arn:aws:rds-db:${opt:region}:"
-                - !Ref AWS::AccountId
-                - ":dbuser:"
-                - Fn::GetAtt:
-                  - MainDatabaseCluster
-                  - DBClusterResourceId
-                - "/lambda"
+                - ""
+                - - "arn:aws:rds-db:${opt:region}:"
+                  - !Ref AWS::AccountId
+                  - ":dbuser:"
+                  - Fn::GetAtt:
+                      - MainDatabaseCluster
+                      - DBClusterResourceId
+                  - "/lambda"
 
 custom:
   appPrefix: vn-lab-ppm-analytics
@@ -235,4 +236,4 @@ functions:
     handler: functions/cleanup-database/handler.cleanupDatabase
     events:
       - schedule: rate(1 day)
-    maximumRetryAttempts: 2
+    maximumRetryAttempts: 5
