@@ -16,7 +16,7 @@ Resources:
       DatabaseName: poduptime
       DBClusterIdentifier: ${self:custom.appPrefix}-${opt:stage}-main
       Engine: aurora-postgresql
-      EngineVersion: 15.3
+      EngineVersion: 16.6
       EngineMode: provisioned
       Port: 5432
       DBSubnetGroupName: !Ref MainDatabaseSubnetGroup
