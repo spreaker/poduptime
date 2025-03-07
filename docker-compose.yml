@@ -23,7 +23,7 @@ services:
       - "4321:4321"
 
   postgresql:
-    image: public.ecr.aws/docker/library/postgres:15.3-alpine
+    image: public.ecr.aws/docker/library/postgres:16.6-alpine
     environment:
       POSTGRES_DB: poduptime
       POSTGRES_USER: lambda

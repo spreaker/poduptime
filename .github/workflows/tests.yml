@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgresql:
-        image: public.ecr.aws/docker/library/postgres:15.3-alpine
+        image: public.ecr.aws/docker/library/postgres:16.6-alpine
         env:
           POSTGRES_DB: poduptime
           POSTGRES_USER: lambda
