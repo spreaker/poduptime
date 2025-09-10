@@ -99,5 +99,23 @@
             <itunes:duration>2</itunes:duration>
             <itunes:explicit>false</itunes:explicit>
         </item>
+        <item>
+            <title>Claritas (clrtpod)</title>
+            <link>https://poduptime.com/?from=feed-episode-claritas-clrtpod</link>
+            <guid isPermaLink="false">https://poduptime.com/?from=feed-episode-claritas-clrtpod</guid>
+            <pubDate>Fri, 29 Sep 2023 23:53:00 +0000</pubDate>
+            <enclosure url="https://clrtpod.com/m/poduptime.com/rss/1_second_of_silence.mp3" length="37206" type="audio/mpeg"/>
+            <itunes:duration>2</itunes:duration>
+            <itunes:explicit>false</itunes:explicit>
+        </item>
+        <item>
+            <title>Claritas (claritaspod)</title>
+            <link>https://poduptime.com/?from=feed-episode-claritas-claritaspod</link>
+            <guid isPermaLink="false">https://poduptime.com/?from=feed-episode-claritas-claritaspod</guid>
+            <pubDate>Fri, 29 Sep 2023 23:53:00 +0000</pubDate>
+            <enclosure url="https://claritaspod.com/measure/poduptime.com/rss/1_second_of_silence.mp3" length="37206" type="audio/mpeg"/>
+            <itunes:duration>2</itunes:duration>
+            <itunes:explicit>false</itunes:explicit>
+        </item>
     </channel>
 </rss>

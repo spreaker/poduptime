@@ -278,6 +278,23 @@ const endpoints = [
       },
     ],
   },
+  {
+    id: "claritas",
+    label: "Claritas",
+    website_url: "https://claritas.com/",
+    services: [
+      {
+        type: "prefix",
+        url: "https://clrtpod.com/m/poduptime.com/rss/1_second_of_silence.mp3",
+        expected_url: "https://poduptime.com/rss/1_second_of_silence.mp3",
+      },
+      {
+        type: "prefix",
+        url: "https://claritaspod.com/measure/poduptime.com/rss/1_second_of_silence.mp3",
+        expected_url: "https://poduptime.com/rss/1_second_of_silence.mp3",
+      },
+    ],
+  },
 ];
 
 const regions = [
