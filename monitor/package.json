@@ -13,8 +13,8 @@
     "@aws-sdk/client-eventbridge": "^3.458.0",
     "@aws-sdk/client-sqs": "^3.458.0",
     "aws-sdk-client-mock": "^3.0.0",
-    "serverless": "^3.38.0",
-    "serverless-prune-plugin": "^2.0.2"
+    "serverless": "^4.26.1",
+    "serverless-prune-plugin": "^2.1.0"
   },
   "dependencies": {
     "date-fns": "^2.30.0",

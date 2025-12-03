@@ -1,6 +1,9 @@
-frameworkVersion: "^3.38.0"
+frameworkVersion: "4.26.1"
 
 service: ${self:custom.appPrefix}
+
+build:
+  esbuild: false
 
 provider:
   name: aws
