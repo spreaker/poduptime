@@ -1,4 +1,7 @@
-frameworkVersion: '^3.38.0'
+frameworkVersion: '4.26.1'
+
+build:
+  esbuild: false
 
 service: ${self:custom.appPrefix}
 
