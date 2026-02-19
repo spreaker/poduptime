@@ -6,6 +6,7 @@
         <link>https://poduptime.com</link>
         <description>RSS Feed for poduptime.com</description>
         <itunes:summary>RSS Feed for poduptime.com</itunes:summary>
+        <itunes:applepodcastverify>1fddda70-0d94-11f1-8fc2-b9a8368153d1</itunes:applepodcastverify>
         <atom:link href="https://poduptime.com/rss/feed.xml" rel="self" type="application/rss+xml"/>
         <language>en</language>
         <category>Technology</category>
