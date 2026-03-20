@@ -9,7 +9,7 @@ provider:
   name: aws
   region: ${opt:region}
   stage: ${opt:stage}
-  runtime: nodejs20.x
+  runtime: nodejs24.x
   architecture: arm64
   memorySize: 256
   stackTags:
