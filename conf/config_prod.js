@@ -66,7 +66,7 @@ const endpoints = [
     services: [
       {
         type: "enclosure",
-        url: "https://media.rss.com/poduptime/2023_10_04_07_27_39_79f08d2e-ea8b-4080-a269-cbce68f922be.mp3",
+        url: "https://content.rss.com/episodes/231518/1154314/poduptime/2023_10_04_07_27_39_79f08d2e-ea8b-4080-a269-cbce68f922be.mp3",
       },
       {
         type: "feed",
