@@ -3,9 +3,9 @@ version: "3"
 services:
   dev:
     build:
-      context:    .
+      context: .
       dockerfile: Dockerfile
-    command: [ "sh" ]
+    command: ["sh"]
     depends_on:
       - postgresql
     environment:
@@ -23,7 +23,7 @@ services:
       - "4321:4321"
 
   postgresql:
-    image: public.ecr.aws/docker/library/postgres:16.6-alpine
+    image: public.ecr.aws/docker/library/postgres:17.9-alpine
     environment:
       POSTGRES_DB: poduptime
       POSTGRES_USER: lambda
