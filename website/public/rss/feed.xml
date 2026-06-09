@@ -6,7 +6,6 @@
         <link>https://poduptime.com</link>
         <description>RSS Feed for poduptime.com</description>
         <itunes:summary>RSS Feed for poduptime.com</itunes:summary>
-        <itunes:applepodcastverify>1fddda70-0d94-11f1-8fc2-b9a8368153d1</itunes:applepodcastverify>
         <atom:link href="https://poduptime.com/rss/feed.xml" rel="self" type="application/rss+xml"/>
         <language>en</language>
         <category>Technology</category>
@@ -25,6 +24,7 @@
         <itunes:image href="https://poduptime.com/rss/image.jpg"/>
         <itunes:category text="Technology"/>
         <itunes:explicit>false</itunes:explicit>
+        <podcast:txt purpose="applepodcastsverify">463f8340-641e-11f1-a29e-576845b2853c</podcast:txt>
         <itunes:type>episodic</itunes:type>
         <podcast:locked>yes</podcast:locked>
         <podcast:guid>8c419075-b03a-5e58-b608-d937f48f1bc7</podcast:guid>
