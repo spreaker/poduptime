@@ -123,6 +123,44 @@ import Layout from '../layouts/Layout.astro'
   </p>
 
   <h2
+    id="cors"
+    class="mb-4 mt-6 border-b-2 border-dotted border-pink-100 pb-2 text-2xl font-bold text-pink-100"
+  >
+    What is the CORS status for prefix services?
+  </h2>
+
+  <p class="mb-4 [&>code]:underline">
+    Our server-side <code>HTTP HEAD</code> measurements are performed by a Lambda function, not a
+    browser, so they never trigger <code>CORS</code>. However, in-browser playback technologies
+    such as <code>HLS</code> (commonly implemented via <code>hls.js</code>) fetch media segments
+    using cross-origin <code>fetch</code>/<code>XHR</code> requests, which do require the target
+    server to respond with proper <code>Access-Control-Allow-Origin</code> headers, unlike a plain
+    <code>&lt;audio&gt;</code>/<code>&lt;video&gt;</code> tag.
+  </p>
+  <p class="mb-4">
+    This complementary, browser-only signal is surfaced automatically, as soon as an endpoint's
+    detail page loads, by performing a live check directly from your own browser against a <code
+      >prefix</code
+    > service's <code>URL</code>, resulting in either a &nbsp;&nbsp;<Status type="CORS_OK" />&nbsp;&nbsp;
+    or &nbsp;&nbsp;<Status type="CORS_KO" />&nbsp;&nbsp; status.
+  </p>
+
+  <p class="mb-4 [&>code]:underline">
+    This check is only available for <code>prefix</code> services. We intentionally leave <code
+      >enclosure</code
+    > URLs out of scope: anyone shipping HLS video already has to satisfy Apple's own requirements
+    around <code>CORS</code>, so there's little value in re-verifying it here.
+  </p>
+
+  <p class="mb-4 [&>code]:underline">
+    Under the hood, the check performs an <code>HTTP HEAD</code> request from your browser and
+    confirms that the full redirect chain completes successfully. We don't surface the response
+    headers themselves, since depending on the browser and the server's <code
+      >Access-Control-Expose-Headers</code
+    > configuration, they may not actually be made available to JavaScript.
+  </p>
+
+  <h2
     class="mb-4 mt-6 border-b-2 border-dotted border-pink-100 pb-2 text-2xl font-bold text-pink-100"
   >
     Why is a particular hosting platform / prefix missing?

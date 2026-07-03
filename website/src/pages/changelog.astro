@@ -12,6 +12,26 @@ import Layout from '../layouts/Layout.astro'
   <h2
     class="mb-4 mt-6 border-b-2 border-dotted border-pink-100 pb-2 text-2xl font-bold text-pink-100"
   >
+    July 3rd, 2026
+  </h2>
+
+  <ul class="mb-4 list-outside list-disc pl-4">
+    <li class="pb-3 [&>code]:underline">
+      Each <code>prefix</code> service on an endpoint's detail page now automatically runs a live,
+      browser-side cross-origin <code>HTTP HEAD</code> request against that URL as soon as the page
+      loads, surfacing the result next to its <code>HTTP</code> status. This is a browser-side signal,
+      distinct from our server-side <code>HTTP HEAD</code> uptime checks, meant to help identify prefixes
+      that may not be compatible with in-browser playback technologies such as <code>HLS</code> (via <code
+        >hls.js</code
+      >), which require proper <code>Access-Control-Allow-Origin</code> headers unlike a plain <code
+        >&lt;audio&gt;</code
+      >/<code>&lt;video&gt;</code> tag.
+    </li>
+  </ul>
+
+  <h2
+    class="mb-4 mt-6 border-b-2 border-dotted border-pink-100 pb-2 text-2xl font-bold text-pink-100"
+  >
     September 10th, 2025
   </h2>
 

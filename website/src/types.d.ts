@@ -18,6 +18,14 @@ export type Detail = {
   available: number | null
 }
 
+export type CorsCheckStatus = 'PENDING' | 'CORS_OK' | 'CORS_KO'
+
+export type CorsCheckResult = {
+  type: string
+  url: string
+  status: CorsCheckStatus
+}
+
 export type Issue = {
   id: string
   timestamp: string

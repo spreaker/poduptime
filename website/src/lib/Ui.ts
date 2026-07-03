@@ -1,4 +1,4 @@
-import { Detail, Instant, Issue, ServiceInstant } from '../types'
+import { CorsCheckResult, Detail, Instant, Issue, ServiceInstant } from '../types'
 import { HOSTING, PREFIXES, SERVICE_TYPES } from './Constants'
 
 const STATUS_BADGE_CLASSES = {
@@ -15,6 +15,18 @@ const STATUS_BADGE_LABELS = {
   PARTIAL: 'PARTIAL',
   UNKNOWN: 'UNKNOWN',
   LOADING: '...'
+}
+
+const CORS_BADGE_CLASSES = {
+  CORS_OK: ['text-lime-300', 'border-lime-600', 'hover:border-lime-300'],
+  CORS_KO: ['text-red-300', 'border-red-600', 'hover:border-red-300'],
+  PENDING: ['text-gray-300', 'border-gray-600', 'hover:border-gray-300']
+}
+
+const CORS_BADGE_LABELS = {
+  CORS_OK: 'CORS OK',
+  CORS_KO: 'CORS KO',
+  PENDING: '...'
 }
 
 const DETAIL_CELL_CLASSES = {
@@ -73,6 +85,29 @@ export function updateServiceStatusBadges(endpoint: string, data: ServiceInstant
       instant.available
     )
   })
+}
+
+function setCorsBadgeState(
+  element: HTMLElement | undefined | null,
+  status: keyof typeof CORS_BADGE_CLASSES
+) {
+  if (!element) return
+  element.classList.remove(
+    ...CORS_BADGE_CLASSES.CORS_OK,
+    ...CORS_BADGE_CLASSES.CORS_KO,
+    ...CORS_BADGE_CLASSES.PENDING
+  )
+  element.classList.add(...CORS_BADGE_CLASSES[status])
+  element.innerText = CORS_BADGE_LABELS[status]
+}
+
+export function setCorsBadgePending(endpoint: string, type: string) {
+  setCorsBadgeState(document.getElementById(`cors-badge-${endpoint}-${type}`), 'PENDING')
+}
+
+export function updateCorsBadge(endpoint: string, result: CorsCheckResult) {
+  const element = document.getElementById(`cors-badge-${endpoint}-${result.type}`)
+  setCorsBadgeState(element, result.status)
 }
 
 export function updateStatusBadges(data: Instant[]) {
