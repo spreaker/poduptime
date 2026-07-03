@@ -30,10 +30,16 @@ const endpointId = Astro.params.endpoint
 const endpointLabel = MONITORED[endpointId || ''].label
 const endpointWebsiteUrl = MONITORED[endpointId || ''].website_url
 const endpointServices = MONITORED[endpointId || ''].services
+const hasPrefixService = endpointServices.some((service) => service.type === 'prefix')
 ---
 
 <Layout title={`PodUptime | ${endpointLabel}`} headerLink="/">
-  <div id="data" data-vars={JSON.stringify({ id: endpointId })}></div>
+  <div
+    id="data"
+    data-vars={JSON.stringify({ id: endpointId })}
+    data-services={JSON.stringify(endpointServices)}
+  >
+  </div>
   <div class="flex flex-col items-start sm:flex-row sm:items-center">
     <h1 class="flex-grow text-4xl font-bold text-pink-100">{endpointLabel}</h1>
     <select
@@ -62,17 +68,41 @@ const endpointServices = MONITORED[endpointId || ''].services
     <span class="text-xs">last 30 minutes</span>
   </div>
   <div class="pt-4">
-    <p class="pb-2 text-xs font-bold">Monitored URL(s):</p>
+    <div class="flex items-center justify-between pb-2">
+      <p class="text-xs font-bold">Monitored URL(s):</p>
+      <div class="flex shrink-0 items-center gap-2 text-xs font-bold">
+        {
+          hasPrefixService && (
+            <span class="inline-block w-32 text-right">
+              CORS <a class="underline" href="/about/#cors">(?)</a>
+            </span>
+          )
+        }
+      </div>
+    </div>
     {
       endpointServices.map((service) => {
+        const checksCors = service.type === 'prefix'
         return (
           <div class="flex items-center justify-between pb-2">
             <code class="break-all pr-2 text-xs">{service.url}</code>
-            <div
-              id={`status-badge-${endpointId}-${service.type}`}
-              class="inline-block w-24 shrink-0 rounded border-2 border-gray-600 px-2 py-1 text-center text-xs font-bold text-gray-300"
-            >
-              ...
+            <div class="flex shrink-0 items-center gap-2">
+              <div
+                title="Server-side HTTP status, measured from multiple AWS regions"
+                id={`status-badge-${endpointId}-${service.type}`}
+                class="inline-block w-24 rounded border-2 border-gray-600 px-2 py-1 text-center text-xs font-bold text-gray-300"
+              >
+                ...
+              </div>
+              {checksCors && (
+                <button
+                  title="Runs a live CORS check against this URL, from your own browser"
+                  id={`cors-badge-${endpointId}-${service.type}`}
+                  class="inline-block w-24 rounded border-2 border-pink-200 px-2 py-1 text-center text-xs font-bold text-pink-200 hover:border-pink-100 hover:text-pink-100"
+                >
+                  Check CORS
+                </button>
+              )}
             </div>
           </div>
         )
@@ -224,15 +254,19 @@ const endpointServices = MONITORED[endpointId || ''].services
 
 <script>
   import { fetchDetailedAndServiceInstantsAndRecentIssuesData } from '../lib/Api'
+  import { checkCors } from '../lib/Cors'
   import {
     updateDetailedGrid,
     updateServiceStatusBadges,
     updateRecentIssues,
-    updateDailyGrid
+    updateDailyGrid,
+    updateCorsBadge,
+    setCorsBadgePending
   } from '../lib/Ui'
 
   const vars = JSON.parse(document.getElementById('data')?.dataset.vars || '{}')
   const endpointId = vars.id || ''
+  const endpointServices = JSON.parse(document.getElementById('data')?.dataset.services || '[]')
 
   document.getElementById('region')?.addEventListener('change', async (event) => {
     const region = (event.target as HTMLSelectElement).value
@@ -256,4 +290,22 @@ const endpointServices = MONITORED[endpointId || ''].services
   updateServiceStatusBadges(endpointId, instants)
   updateRecentIssues(issues)
   updateDailyGrid(daily)
+
+  // The CORS check is a live, browser-side probe against a third-party URL, so it
+  // only runs when explicitly requested, and only for prefix services (redirects
+  // followed by the browser, relevant to in-browser playback, e.g. via HLS/hls.js).
+  endpointServices
+    .filter((service: { type: string }) => service.type === 'prefix')
+    .forEach((service: { type: string; url: string }) => {
+      document
+        .getElementById(`cors-badge-${endpointId}-${service.type}`)
+        ?.addEventListener('click', async (event) => {
+          const button = event.currentTarget as HTMLButtonElement
+          button.disabled = true
+          setCorsBadgePending(endpointId, service.type)
+          const result = await checkCors(service.type, service.url)
+          updateCorsBadge(endpointId, result)
+          button.disabled = false
+        })
+    })
 </script>
