@@ -95,13 +95,13 @@ const hasPrefixService = endpointServices.some((service) => service.type === 'pr
                 ...
               </div>
               {checksCors && (
-                <button
-                  title="Runs a live CORS check against this URL, from your own browser"
+                <div
+                  title="Live CORS check against this URL, performed automatically from your own browser"
                   id={`cors-badge-${endpointId}-${service.type}`}
-                  class="inline-block w-24 rounded border-2 border-pink-200 px-2 py-1 text-center text-xs font-bold text-pink-200 hover:border-pink-100 hover:text-pink-100"
+                  class="inline-block w-24 rounded border-2 border-gray-600 px-2 py-1 text-center text-xs font-bold text-gray-300"
                 >
-                  Check CORS
-                </button>
+                  ...
+                </div>
               )}
             </div>
           </div>
@@ -291,21 +291,14 @@ const hasPrefixService = endpointServices.some((service) => service.type === 'pr
   updateRecentIssues(issues)
   updateDailyGrid(daily)
 
-  // The CORS check is a live, browser-side probe against a third-party URL, so it
-  // only runs when explicitly requested, and only for prefix services (redirects
-  // followed by the browser, relevant to in-browser playback, e.g. via HLS/hls.js).
+  // The CORS check is a live, browser-side probe against a third-party URL, run
+  // automatically on page load, and only for prefix services (redirects followed
+  // by the browser, relevant to in-browser playback, e.g. via HLS/hls.js).
   endpointServices
     .filter((service: { type: string }) => service.type === 'prefix')
-    .forEach((service: { type: string; url: string }) => {
-      document
-        .getElementById(`cors-badge-${endpointId}-${service.type}`)
-        ?.addEventListener('click', async (event) => {
-          const button = event.currentTarget as HTMLButtonElement
-          button.disabled = true
-          setCorsBadgePending(endpointId, service.type)
-          const result = await checkCors(service.type, service.url)
-          updateCorsBadge(endpointId, result)
-          button.disabled = false
-        })
+    .forEach(async (service: { type: string; url: string }) => {
+      setCorsBadgePending(endpointId, service.type)
+      const result = await checkCors(service.type, service.url)
+      updateCorsBadge(endpointId, result)
     })
 </script>

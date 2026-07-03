@@ -126,7 +126,7 @@ import Layout from '../layouts/Layout.astro'
     id="cors"
     class="mb-4 mt-6 border-b-2 border-dotted border-pink-100 pb-2 text-2xl font-bold text-pink-100"
   >
-    What is the check CORS button for prefix services?
+    What is the CORS status for prefix services?
   </h2>
 
   <p class="mb-4 [&>code]:underline">
@@ -137,9 +137,12 @@ import Layout from '../layouts/Layout.astro'
     server to respond with proper <code>Access-Control-Allow-Origin</code> headers, unlike a plain
     <code>&lt;audio&gt;</code>/<code>&lt;video&gt;</code> tag.
   </p>
-  <p>The &nbsp;&nbsp;<button class="inline-block w-24 rounded border-2 border-pink-200 px-2 py-1 text-center text-xs font-bold text-pink-200 hover:border-pink-100 hover:text-pink-100">Check CORS</button>&nbsp;&nbsp; button surfaces this complementary, browser-only signal by performing a live check, directly
-    from your own browser, against a <code>prefix</code> service's <code>URL</code> on an endpoint's
-    detail page resulting in either a &nbsp;&nbsp;<Status type="CORS_OK" />&nbsp;&nbsp; or &nbsp;&nbsp;<Status type="CORS_KO" />&nbsp;&nbsp; status.
+  <p class="mb-4">
+    This complementary, browser-only signal is surfaced automatically, as soon as an endpoint's
+    detail page loads, by performing a live check directly from your own browser against a <code
+      >prefix</code
+    > service's <code>URL</code>, resulting in either a &nbsp;&nbsp;<Status type="CORS_OK" />&nbsp;&nbsp;
+    or &nbsp;&nbsp;<Status type="CORS_KO" />&nbsp;&nbsp; status.
   </p>
 
   <p class="mb-4 [&>code]:underline">
