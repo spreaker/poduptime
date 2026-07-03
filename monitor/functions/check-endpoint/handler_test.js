@@ -33,7 +33,16 @@ const assertEventBridgePayload = function (events, expected) {
     assert.equal(actual.type, expected.type);
     assert.deepStrictEqual(actual.error, expected.error);
     assert.equal(actual.available, expected.available);
+    assert.deepStrictEqual(actual.cors, expected.cors);
 }
+
+const NO_CORS_HEADERS = {
+    "access-control-allow-origin": null,
+    "access-control-allow-methods": null,
+    "access-control-allow-headers": null,
+    "access-control-expose-headers": null,
+    "access-control-allow-credentials": null,
+};
 
 describe('monitor - checkEndpoint', () => {
 
@@ -72,7 +81,73 @@ describe('monitor - checkEndpoint', () => {
             // Mocked agent doesn't provide context.history, so we cannot really check this is correct
             traversal: ["https://poduptime.com/test.mp3"],
             available: 1,
-            type: "enclosure"
+            type: "enclosure",
+            cors: { headers: NO_CORS_HEADERS, missing: true }
+        });
+    });
+
+    it('should capture CORS headers for enclosure and prefix checks', async () => {
+
+        const service = {
+            type: "enclosure",
+            endpoint: "test",
+            url: "https://poduptime.com/test.mp3"
+        };
+
+        await checkEndpoint({ Records: [{ body: JSON.stringify(service) }] }, {
+            agentFactory: (options) => {
+
+                const mockAgent = new MockAgent(options);
+                mockAgent.disableNetConnect();
+
+                mockAgent.get("https://poduptime.com").intercept({ path: "/test.mp3", method: 'HEAD' }).reply(200, {}, {
+                    headers: { "access-control-allow-origin": "*" }
+                });
+
+                return mockAgent;
+            }
+        });
+
+        assertEventBridgePayload(events, {
+            url: "https://poduptime.com/test.mp3",
+            status: 200,
+            headers: { "access-control-allow-origin": "*" },
+            traversal: ["https://poduptime.com/test.mp3"],
+            available: 1,
+            type: "enclosure",
+            cors: { headers: { ...NO_CORS_HEADERS, "access-control-allow-origin": "*" }, missing: false }
+        });
+    });
+
+    it('should not capture CORS headers for feed checks', async () => {
+
+        const service = {
+            type: "feed",
+            endpoint: "test",
+            url: "https://poduptime.com/feed.xml"
+        };
+
+        await checkEndpoint({ Records: [{ body: JSON.stringify(service) }] }, {
+            agentFactory: (options) => {
+
+                const mockAgent = new MockAgent(options);
+                mockAgent.disableNetConnect();
+
+                mockAgent.get("https://poduptime.com").intercept({ path: "/feed.xml", method: 'HEAD' }).reply(200, {}, {
+                    headers: { "access-control-allow-origin": "*" }
+                });
+
+                return mockAgent;
+            }
+        });
+
+        assertEventBridgePayload(events, {
+            url: "https://poduptime.com/feed.xml",
+            status: 200,
+            headers: { "access-control-allow-origin": "*" },
+            traversal: ["https://poduptime.com/feed.xml"],
+            available: 1,
+            type: "feed"
         });
     });
 
@@ -103,7 +178,8 @@ describe('monitor - checkEndpoint', () => {
             traversal: ["https://poduptime.com/test.mp3"],
             available: 0,
             type: "enclosure",
-            error: serializeError(new UnexpectedHttpStatusError(404))
+            error: serializeError(new UnexpectedHttpStatusError(404)),
+            cors: { headers: NO_CORS_HEADERS, missing: true }
         });
     });
 
@@ -140,7 +216,8 @@ describe('monitor - checkEndpoint', () => {
             headers: { location: "https://poduptime.com/test.mp3" },
             traversal: ["https://prefix.com/poduptime.com/test.mp3"],
             available: 1,
-            type: "prefix"
+            type: "prefix",
+            cors: { headers: NO_CORS_HEADERS, missing: true }
         });
     });
 
@@ -172,7 +249,8 @@ describe('monitor - checkEndpoint', () => {
             traversal: ["https://prefix.com/poduptime.com/test.mp3"],
             available: 0,
             type: "prefix",
-            error: serializeError(new UnexpectedHttpStatusError(200))
+            error: serializeError(new UnexpectedHttpStatusError(200)),
+            cors: { headers: NO_CORS_HEADERS, missing: true }
         });
     });
 
@@ -206,7 +284,8 @@ describe('monitor - checkEndpoint', () => {
             traversal: ["https://prefix.com/poduptime.com/test.mp3"],
             available: 0,
             type: "prefix",
-            error: serializeError(new UnexpectedRedirectLocationError("https://poduptime.com/wrong.mp3"))
+            error: serializeError(new UnexpectedRedirectLocationError("https://poduptime.com/wrong.mp3")),
+            cors: { headers: NO_CORS_HEADERS, missing: true }
         });
     });
 

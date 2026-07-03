@@ -8,9 +8,18 @@ export type Instant = {
   available: number | null | undefined
 }
 
+export type Cors = {
+  headers: {
+    [key: string]: string | null
+  }
+  missing: boolean
+  timestamp: string
+}
+
 export type ServiceInstant = {
   type: string
   available: number | null | undefined
+  cors?: Cors
 }
 
 export type Detail = {

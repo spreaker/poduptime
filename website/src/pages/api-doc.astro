@@ -15,7 +15,21 @@ const EXAMPLE_INSTANT = {
 const EXAMPLE_INSTANT_SERVICE = {
   timestamp: '2023-10-31T14:56:33Z',
   data: [
-    { type: 'enclosure', available: 1 },
+    {
+      type: 'enclosure',
+      available: 1,
+      cors: {
+        headers: {
+          'access-control-allow-origin': null,
+          'access-control-allow-methods': null,
+          'access-control-allow-headers': null,
+          'access-control-expose-headers': null,
+          'access-control-allow-credentials': null
+        },
+        missing: true,
+        timestamp: '2023-10-31T14:55:12Z'
+      }
+    },
     { type: 'feed', available: 1 }
   ]
 }
@@ -290,6 +304,53 @@ const EXAMPLE_RECENT_ISSUES = {
             >When the value is null, it signifies that the availability is unknown. Otherwise, the
             value is a number between 0 and 1, representing the availability percentage</td
           >
+        </tr>
+        <tr>
+          <td class="border border-dotted p-4">cors</td>
+          <td class="border border-dotted p-4">Object</td>
+          <td class="border border-dotted p-4">Yes</td>
+          <td class="border border-dotted p-4"
+            >Only present for <code>enclosure</code> and <code>prefix</code> types. It reports the
+            latest known CORS-related response headers, informational only and does not affect
+            <code>available</code>.
+            <table>
+              <thead class="text-sm">
+                <tr>
+                  <td class="px-4 py-2 font-semibold">Field</td>
+                  <td class="px-4 py-2 font-semibold">Type</td>
+                  <td class="px-4 py-2 font-semibold">Nullable</td>
+                  <td class="px-4 py-2 font-semibold">Description</td>
+                </tr>
+              </thead>
+              <tbody class="text-sm">
+                <tr>
+                  <td class="border border-dotted p-4">headers</td>
+                  <td class="border border-dotted p-4">Object</td>
+                  <td class="border border-dotted p-4">No</td>
+                  <td class="border border-dotted p-4"
+                    >The CORS-related HTTP response headers, key-value pairs where the value is
+                    <code>null</code> when the header was not present in the response.</td
+                  >
+                </tr>
+                <tr>
+                  <td class="border border-dotted p-4">missing</td>
+                  <td class="border border-dotted p-4">Boolean</td>
+                  <td class="border border-dotted p-4">No</td>
+                  <td class="border border-dotted p-4"
+                    ><code>true</code> when <code>access-control-allow-origin</code> was not present
+                    in the response, meaning browser-based playback (e.g. hls.js) is likely to break.</td
+                  >
+                </tr>
+                <tr>
+                  <td class="border border-dotted p-4">timestamp</td>
+                  <td class="border border-dotted p-4">String</td>
+                  <td class="border border-dotted p-4">No</td>
+                  <td class="border border-dotted p-4">The timestamp of the check that produced this CORS snapshot.</td
+                  >
+                </tr>
+              </tbody>
+            </table>
+          </td>
         </tr>
       </tbody>
     </table>

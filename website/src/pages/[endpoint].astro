@@ -66,14 +66,17 @@ const endpointServices = MONITORED[endpointId || ''].services
     {
       endpointServices.map((service) => {
         return (
-          <div class="flex items-center justify-between pb-2">
-            <code class="break-all pr-2 text-xs">{service.url}</code>
-            <div
-              id={`status-badge-${endpointId}-${service.type}`}
-              class="inline-block w-24 shrink-0 rounded border-2 border-gray-600 px-2 py-1 text-center text-xs font-bold text-gray-300"
-            >
-              ...
+          <div class="pb-2">
+            <div class="flex items-center justify-between">
+              <code class="break-all pr-2 text-xs">{service.url}</code>
+              <div
+                id={`status-badge-${endpointId}-${service.type}`}
+                class="inline-block w-24 shrink-0 rounded border-2 border-gray-600 px-2 py-1 text-center text-xs font-bold text-gray-300"
+              >
+                ...
+              </div>
             </div>
+            <div id={`cors-info-${endpointId}-${service.type}`} />
           </div>
         )
       })
@@ -227,6 +230,7 @@ const endpointServices = MONITORED[endpointId || ''].services
   import {
     updateDetailedGrid,
     updateServiceStatusBadges,
+    updateServiceCorsInfo,
     updateRecentIssues,
     updateDailyGrid
   } from '../lib/Ui'
@@ -239,11 +243,13 @@ const endpointServices = MONITORED[endpointId || ''].services
     updateDetailedGrid([])
     updateDailyGrid([])
     updateServiceStatusBadges(endpointId, [])
+    updateServiceCorsInfo(endpointId, [])
     updateRecentIssues(null)
     const { instants, detailed, issues, daily } =
       await fetchDetailedAndServiceInstantsAndRecentIssuesData(endpointId, region)
     updateDetailedGrid(detailed)
     updateServiceStatusBadges(endpointId, instants)
+    updateServiceCorsInfo(endpointId, instants)
     updateRecentIssues(issues)
     updateDailyGrid(daily)
   })
@@ -254,6 +260,7 @@ const endpointServices = MONITORED[endpointId || ''].services
 
   updateDetailedGrid(detailed)
   updateServiceStatusBadges(endpointId, instants)
+  updateServiceCorsInfo(endpointId, instants)
   updateRecentIssues(issues)
   updateDailyGrid(daily)
 </script>

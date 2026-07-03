@@ -87,6 +87,30 @@ const aggregateInstantEndpoint = async function (aggregation) {
         return { type: service.type, available: null }
     }), 'type');
 
+    /**
+     * CORS headers are a server-side configuration property rather than
+     * a network characteristic, so they don't meaningfully vary by monitor
+     * region: for "global" we just show the latest known snapshot across
+     * all regions instead of averaging/merging per-region results.
+     */
+    const corsRows = "global" === region ?
+        (await query(`
+            SELECT DISTINCT ON (type) type, headers, missing, timestamp
+            FROM cors_status
+            WHERE endpoint = $1
+            ORDER BY type, timestamp DESC
+        `, [endpoint])).rows :
+        (await query(`
+            SELECT type, headers, missing, timestamp
+            FROM cors_status
+            WHERE endpoint = $1 AND region = $2
+        `, [endpoint, region])).rows;
+
+    result = result.map((entry) => {
+        const cors = find(corsRows, { type: entry.type });
+        return cors ? { ...entry, cors: { headers: cors.headers, missing: cors.missing, timestamp: cors.timestamp } } : entry;
+    });
+
     await s3Client.send(new PutObjectCommand({
         Bucket: process.env.WEBSITE_BUCKET,
         Key: `api/instant-${endpoint}-${region}.json`,

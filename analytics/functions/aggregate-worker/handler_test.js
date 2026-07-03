@@ -171,6 +171,63 @@ describe('analytics - aggregateWorker', () => {
                 }]
             }), null);
         });
+
+        it('should merge the latest CORS status for the requested region', async (t) => {
+
+            const type = config.endpoints[0].services[0].type;
+            const timestamp = formatISO(new Date());
+
+            await db.query(`
+                INSERT INTO cors_status (endpoint, type, region, timestamp, headers, missing)
+                VALUES ($1, $2, $3, $4, $5, $6)
+            `, [endpoint, type, "antartica-1", timestamp, JSON.stringify({ "access-control-allow-origin": "*" }), false]);
+
+            await db.query(`
+                INSERT INTO cors_status (endpoint, type, region, timestamp, headers, missing)
+                VALUES ($1, $2, $3, $4, $5, $6)
+            `, [endpoint, type, "antartica-2", timestamp, JSON.stringify({ "access-control-allow-origin": null }), true]);
+
+            await aggregateWorker({ Records: [{ body: JSON.stringify({ type: "instant-endpoint", endpoint: endpoint, region: "antartica-1" }) }] });
+
+            assertApiResponse(s3, `api/instant-${endpoint}-antartica-1.json`, {
+                data: backfillInstantEndpoint([
+                    {
+                        type: config.endpoints[0].services[0].type, available: 1,
+                        cors: { headers: { "access-control-allow-origin": "*" }, missing: false, timestamp }
+                    },
+                    { type: config.endpoints[0].services[0].type, available: null }
+                ])
+            });
+        });
+
+        it('should show the latest known CORS status across regions for global', async (t) => {
+
+            const type = config.endpoints[0].services[0].type;
+            const olderTimestamp = formatISO(subMinutes(new Date(), 5));
+            const latestTimestamp = formatISO(new Date());
+
+            await db.query(`
+                INSERT INTO cors_status (endpoint, type, region, timestamp, headers, missing)
+                VALUES ($1, $2, $3, $4, $5, $6)
+            `, [endpoint, type, "antartica-1", olderTimestamp, JSON.stringify({ "access-control-allow-origin": "*" }), false]);
+
+            await db.query(`
+                INSERT INTO cors_status (endpoint, type, region, timestamp, headers, missing)
+                VALUES ($1, $2, $3, $4, $5, $6)
+            `, [endpoint, type, "antartica-2", latestTimestamp, JSON.stringify({ "access-control-allow-origin": null }), true]);
+
+            await aggregateWorker({ Records: [{ body: JSON.stringify({ type: "instant-endpoint", endpoint: endpoint, region: "global" }) }] });
+
+            assertApiResponse(s3, `api/instant-${endpoint}-global.json`, {
+                data: backfillInstantEndpoint([
+                    {
+                        type: config.endpoints[0].services[0].type, available: 1,
+                        cors: { headers: { "access-control-allow-origin": null }, missing: true, timestamp: latestTimestamp }
+                    },
+                    { type: config.endpoints[0].services[1].type, available: 0 }
+                ])
+            });
+        });
     });
 
     describe('detailed', () => {

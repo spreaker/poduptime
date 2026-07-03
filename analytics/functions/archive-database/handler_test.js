@@ -79,6 +79,69 @@ describe('analytics - archiveDatabase', () => {
         });
     });
 
+    it('should archive latest CORS status for prefix and enclosure services', async () => {
+
+        const event = {
+            ...SAMPLE_EVENT,
+            available: 1,
+            cors: {
+                headers: { "access-control-allow-origin": "*" },
+                missing: false
+            }
+        };
+
+        await archiveDatabase({ Records: [{ body: JSON.stringify({ detail: event }) }] });
+
+        const cors = await queryOne("SELECT * FROM cors_status WHERE endpoint = $1 AND type = $2 AND region = $3", [
+            event.endpoint, event.type, event.region
+        ]);
+        assert.deepStrictEqual(cors, {
+            endpoint: event.endpoint,
+            type: event.type,
+            region: event.region,
+            timestamp: event.timestamp,
+            headers: event.cors.headers,
+            missing: event.cors.missing
+        });
+    });
+
+    it('should update the latest CORS status on conflict', async () => {
+
+        const first = {
+            ...SAMPLE_EVENT,
+            available: 1,
+            cors: { headers: { "access-control-allow-origin": null }, missing: true }
+        };
+
+        const second = {
+            ...SAMPLE_EVENT,
+            id: randomUUID(),
+            available: 1,
+            cors: { headers: { "access-control-allow-origin": "*" }, missing: false }
+        };
+
+        await archiveDatabase({ Records: [{ body: JSON.stringify({ detail: first }) }] });
+        await archiveDatabase({ Records: [{ body: JSON.stringify({ detail: second }) }] });
+
+        const cors = await queryOne("SELECT * FROM cors_status WHERE endpoint = $1 AND type = $2 AND region = $3", [
+            second.endpoint, second.type, second.region
+        ]);
+        assert.deepStrictEqual(cors.headers, second.cors.headers);
+        assert.equal(cors.missing, second.cors.missing);
+    });
+
+    it('should not archive CORS status when absent from the measurement', async () => {
+
+        const event = { ...SAMPLE_EVENT, available: 1 };
+
+        await archiveDatabase({ Records: [{ body: JSON.stringify({ detail: event }) }] });
+
+        const cors = await queryOne("SELECT * FROM cors_status WHERE endpoint = $1 AND type = $2 AND region = $3", [
+            event.endpoint, event.type, event.region
+        ]);
+        assert.equal(cors, null);
+    });
+
     it('should throw on database errors', async (t) => {
 
         // Missing required fields

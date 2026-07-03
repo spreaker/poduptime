@@ -70,6 +70,31 @@ const performHTTPRequest = async function (id, service, agentFactory) {
     };
 }
 
+const CORS_HEADERS = [
+    'access-control-allow-origin',
+    'access-control-allow-methods',
+    'access-control-allow-headers',
+    'access-control-expose-headers',
+    'access-control-allow-credentials',
+];
+
+const extractCorsInfo = function (service, response) {
+
+    if (!["prefix", "enclosure"].includes(service.type) || response.error) {
+        return null;
+    }
+
+    const headers = {};
+    for (const key of CORS_HEADERS) {
+        headers[key] = response.headers?.[key] ?? null;
+    }
+
+    return {
+        headers,
+        missing: !headers['access-control-allow-origin'],
+    };
+}
+
 const determineAvailability = function (service, response) {
 
     // If HTTP request triggered an error, we let it bubble
@@ -108,10 +133,13 @@ const performCheck = async function (service, agentFactory) {
 
     const response = await performHTTPRequest(result.id, service, agentFactory);
 
+    const cors = extractCorsInfo(service, response);
+
     return {
         ...result,
         ...response,
-        ...determineAvailability(service, response)
+        ...determineAvailability(service, response),
+        ...(cors ? { cors } : {}),
     };
 }
 

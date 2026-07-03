@@ -1,4 +1,4 @@
-import { Detail, Instant, Issue, ServiceInstant } from '../types'
+import { Cors, Detail, Instant, Issue, ServiceInstant } from '../types'
 import { HOSTING, PREFIXES, SERVICE_TYPES } from './Constants'
 
 const STATUS_BADGE_CLASSES = {
@@ -72,6 +72,30 @@ export function updateServiceStatusBadges(endpoint: string, data: ServiceInstant
       document.getElementById(`status-badge-${endpoint}-${instant.type}`),
       instant.available
     )
+  })
+}
+
+function renderCorsInfo(endpoint: string, type: string, cors: Cors) {
+  const detailId = `cors-detail-${endpoint}-${type}`
+  return `
+    <span
+      class="cursor-pointer text-xs underline ${cors.missing ? 'text-yellow-300' : 'text-lime-300'}"
+      onclick="document.getElementById('${detailId}').classList.toggle('hidden')"
+    >
+      CORS: ${cors.missing ? 'Access-Control-Allow-Origin missing' : 'OK'}
+    </span>
+    <pre id="${detailId}" class="hidden overflow-x-scroll pt-1 text-xs">${JSON.stringify(cors.headers, null, 2)}</pre>
+  `
+}
+
+export function updateServiceCorsInfo(endpoint: string, data: ServiceInstant[]) {
+  SERVICE_TYPES.forEach((type) => {
+    const element = document.getElementById(`cors-info-${endpoint}-${type}`)
+    if (element) element.innerHTML = ''
+  })
+  data.forEach((instant) => {
+    const element = document.getElementById(`cors-info-${endpoint}-${instant.type}`)
+    if (element && instant.cors) element.innerHTML = renderCorsInfo(endpoint, instant.type, instant.cors)
   })
 }
 
