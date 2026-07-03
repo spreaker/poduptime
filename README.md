@@ -38,6 +38,8 @@ Data retention is managed differently for the two storage systems:
 
 The primary purpose of the `website` component is to offer a user interface for visualizing the data collected by the `monitor` and `analytics` components. It serves as a static website, constructed with [Astro](https://astro.build) and styled with [Tailwind CSS](https://tailwindcss.com/). Deployment involves hosting the website on `S3` and delivering it via a `CloudFront` distribution. This setup ensures efficient and scalable delivery of the user interface to end-users.
 
+Each `prefix` service on an endpoint's detail page also offers an on-demand, browser-side `CORS` check, surfacing a signal that's complementary to the server-side `HTTP HEAD` uptime measurements and relevant to in-browser playback technologies such as `HLS`.
+
 ## Technology Choices
 
 At Spreaker, side projects serve as a means to have fun and explore technologies we are not yet familiar with. PodUptime is no exception and embraces a blend of foundational technologies that are part of our standard toolset (`S3`, `Lambda`, `CloudFront`, `Serverless Framework`) alongside technologies we are eager to experiment with and learn more about. Some of these include:
