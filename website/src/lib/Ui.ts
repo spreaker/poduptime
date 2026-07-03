@@ -18,14 +18,12 @@ const STATUS_BADGE_LABELS = {
 }
 
 const CORS_BADGE_CLASSES = {
-  IDLE: ['text-pink-200', 'border-pink-200', 'hover:border-pink-100', 'hover:text-pink-100'],
   CORS_OK: ['text-lime-300', 'border-lime-600', 'hover:border-lime-300'],
   CORS_KO: ['text-red-300', 'border-red-600', 'hover:border-red-300'],
   PENDING: ['text-gray-300', 'border-gray-600', 'hover:border-gray-300']
 }
 
 const CORS_BADGE_LABELS = {
-  IDLE: 'Run CORS check',
   CORS_OK: 'CORS OK',
   CORS_KO: 'CORS KO',
   PENDING: '...'
@@ -95,7 +93,6 @@ function setCorsBadgeState(
 ) {
   if (!element) return
   element.classList.remove(
-    ...CORS_BADGE_CLASSES.IDLE,
     ...CORS_BADGE_CLASSES.CORS_OK,
     ...CORS_BADGE_CLASSES.CORS_KO,
     ...CORS_BADGE_CLASSES.PENDING

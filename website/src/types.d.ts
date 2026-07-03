@@ -18,7 +18,7 @@ export type Detail = {
   available: number | null
 }
 
-export type CorsCheckStatus = 'IDLE' | 'PENDING' | 'CORS_OK' | 'CORS_KO'
+export type CorsCheckStatus = 'PENDING' | 'CORS_OK' | 'CORS_KO'
 
 export type CorsCheckResult = {
   type: string
