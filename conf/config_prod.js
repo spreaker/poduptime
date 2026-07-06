@@ -30,21 +30,6 @@ const endpoints = [
     ],
   },
   {
-    id: "blubrry",
-    label: "Blubrry",
-    website_url: "https://blubrry.com",
-    services: [
-      {
-        type: "enclosure",
-        url: "https://media.blubrry.com/3020970/content.blubrry.com/3020970/1_second_of_silence.mp3",
-      },
-      {
-        type: "feed",
-        url: "https://feeds.blubrry.com/feeds/3020970.xml",
-      },
-    ],
-  },
-  {
     id: "omny",
     label: "Omny Studio",
     website_url: "https://omnystudio.com",
@@ -206,6 +191,21 @@ const endpoints = [
       {
         type: "feed",
         url: "https://feed.podbean.com/poduptime/feed.xml",
+      },
+    ],
+  },
+  {
+    id: "blubrry",
+    label: "Blubrry",
+    website_url: "https://blubrry.com",
+    services: [
+      {
+        type: "enclosure",
+        url: "https://media.blubrry.com/3020970/content.blubrry.com/3020970/1_second_of_silence.mp3",
+      },
+      {
+        type: "feed",
+        url: "https://feeds.blubrry.com/feeds/3020970.xml",
       },
     ],
   },
